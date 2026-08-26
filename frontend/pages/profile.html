@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile — InternMatch</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar Navigation -->
+  <aside class="app-sidebar">
+    <div class="brand-logo">
+      <span class="badge-logo">IM</span>
+      <span>InternMatch</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="dashboard.html" class="nav-link"><span>📊</span> Dashboard</a></li>
+      <li><a href="profile.html" class="nav-link active"><span>👤</span> My Profile</a></li>
+      <li><a href="skill-analysis.html" class="nav-link"><span>📈</span> Skill Analysis</a></li>
+      <li><a href="search.html" class="nav-link"><span>🔍</span> Search Jobs</a></li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="user-name" id="sidebar-user-name">Loading...</div>
+      <div class="user-id" id="sidebar-user-role">Student</div>
+      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 6px;">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="app-main">
+    <header class="main-header">
+      <h2>Manage Profile</h2>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span id="header-strength-badge" style="font-size: 0.9rem; font-weight: 700; color: var(--matched);">
+          • Profile Strength: <span id="header-strength-val">0%</span>
+        </span>
+        <button id="save-profile-btn" class="btn btn-primary">Save Changes</button>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <div id="profile-alert" class="alert-toast"></div>
+
+      <!-- Profile Strength Card -->
+      <div class="strength-card">
+        <div class="strength-header">
+          <span class="strength-label">Profile Completeness</span>
+          <span class="strength-value" id="strength-display-val">0%</span>
+        </div>
+        <div class="strength-bar-bg">
+          <div class="strength-bar-fill" id="strength-bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="strength-hint" id="strength-hint">Add academic information, technical skills, and career interests to improve your job match accuracy.</div>
+      </div>
+
+      <!-- Form: Academic Background -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Academic Background</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="institution">Institution</label>
+            <input type="text" id="institution" class="form-control" placeholder="e.g. Universiti Tenaga Nasional" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="programme">Programme</label>
+            <input type="text" id="programme" class="form-control" placeholder="e.g. Bachelor of Software Engineering" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="fieldOfStudy">Field of Study</label>
+            <input type="text" id="fieldOfStudy" class="form-control" placeholder="e.g. Software Engineering" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="yearOfStudy">Year of Study</label>
+            <select id="yearOfStudy" class="form-control">
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4" selected>4th Year / Final Year</option>
+              <option value="0">Graduated (Fresh Graduate)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="cgpa">CGPA (0.00 - 4.00)</label>
+            <input type="number" id="cgpa" class="form-control" step="0.01" min="0" max="4.00" placeholder="e.g. 3.67" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Technical Skills -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Technical Skills</h3>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Minimum 3 recommended for accurate matching</span>
+        </div>
+        <div class="tag-container" id="tech-skills-container">
+          <!-- Populated dynamically -->
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 12px;">
+          <select id="tech-skill-select" class="form-control" style="max-width: 320px;">
+            <option value="" disabled selected>Select a technical skill...</option>
+          </select>
+          <button id="add-tech-skill-btn" class="btn btn-secondary">+ Add Skill</button>
+        </div>
+      </div>
+
+      <!-- Card: Soft Skills -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Soft Skills</h3>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Communication, problem solving, teamwork, etc.</span>
+        </div>
+        <div class="tag-container" id="soft-skills-container">
+          <!-- Populated dynamically -->
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 12px;">
+          <select id="soft-skill-select" class="form-control" style="max-width: 320px;">
+            <option value="" disabled selected>Select a soft skill...</option>
+          </select>
+          <button id="add-soft-skill-btn" class="btn btn-secondary">+ Add Skill</button>
+        </div>
+      </div>
+
+      <!-- Card: Career Interests & Certifications -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Career Interests & Certifications</h3>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="careerInterests">Career Interests (comma-separated)</label>
+          <input type="text" id="careerInterests" class="form-control" placeholder="e.g. Web Development, Cloud Engineering, Software Architecture" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="certifications">Professional Certifications</label>
+          <input type="text" id="certifications" class="form-control" placeholder="e.g. AWS Certified Cloud Practitioner, Cisco CCNA" />
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/profile.js"></script>
+</body>
+</html>

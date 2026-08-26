@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin: Manage Users — InternMatch</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+<!-- Admin Header Bar (Figure 4.10) -->
+<header class="main-header" style="position: sticky; top: 0;">
+  <div class="brand-logo" style="padding: 0; border: none;">
+    <span class="badge-logo">IM</span>
+    <span>InternMatch <span style="font-size: 0.85rem; color: var(--amber); font-weight: 600;">/ Administrator Panel</span></span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <a href="admin-jobs.html" style="font-weight: 500; color: var(--text-muted); text-decoration: none;">Manage Jobs</a>
+    <a href="admin-users.html" style="font-weight: 700; color: #38bdf8; text-decoration: none; border-bottom: 2px solid #38bdf8; padding-bottom: 4px;">Manage Users</a>
+    <button id="logout-btn" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.82rem;">Sign Out</button>
+  </div>
+</header>
+
+<div class="main-content" style="max-width: 1200px; margin: 0 auto; padding-top: 32px;">
+  <div id="users-alert" class="alert-toast"></div>
+
+  <!-- Page Title & Search -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <h2>User Accounts</h2>
+      <p id="users-count-label">Loading registered users count…</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <input type="text" id="user-search-input" class="form-control" placeholder="Search users by name or email..." style="width: 300px;" />
+    </div>
+  </div>
+
+  <!-- Users Table (Figure 4.10) -->
+  <div class="data-table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Field of Study</th>
+          <th>Status</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="users-table-body">
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 32px; color: var(--text-muted);">Loading user records…</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table Pagination Footer -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);">
+    <div id="users-pagination-info">Showing results</div>
+    <div style="display: flex; gap: 6px;" id="users-pagination-controls">
+      <!-- Generated dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Account Modal -->
+<div class="modal-overlay" id="user-edit-modal">
+  <div class="modal-box" style="max-width: 480px;">
+    <div class="card-header">
+      <h3>Edit User Account</h3>
+      <button class="btn btn-outline" id="close-user-modal-btn" style="padding: 4px 10px; font-size: 0.8rem;">✕ Close</button>
+    </div>
+
+    <form id="user-edit-form">
+      <input type="hidden" id="edit-user-id" />
+
+      <div class="form-group">
+        <label class="form-label" for="editUserName">Full Name</label>
+        <input type="text" id="editUserName" class="form-control" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="editUserRole">Assigned Role *</label>
+        <select id="editUserRole" class="form-control" required>
+          <option value="Student">Student</option>
+          <option value="Graduate">Graduate</option>
+          <option value="Admin">Admin</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="editUserStatus">Account Status *</label>
+        <select id="editUserStatus" class="form-control" required>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive (Deactivated)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button type="button" class="btn btn-outline" id="cancel-user-modal-btn" style="width: auto;">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="save-user-btn" style="width: auto;">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/admin-users.js"></script>
+</body>
+</html>

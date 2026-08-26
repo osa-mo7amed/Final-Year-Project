@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search Jobs — InternMatch</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar Navigation -->
+  <aside class="app-sidebar">
+    <div class="brand-logo">
+      <span class="badge-logo">IM</span>
+      <span>InternMatch</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="dashboard.html" class="nav-link"><span>📊</span> Dashboard</a></li>
+      <li><a href="profile.html" class="nav-link"><span>👤</span> My Profile</a></li>
+      <li><a href="skill-analysis.html" class="nav-link"><span>📈</span> Skill Analysis</a></li>
+      <li><a href="search.html" class="nav-link active"><span>🔍</span> Search Jobs</a></li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="user-name" id="sidebar-user-name">Loading...</div>
+      <div class="user-id" id="sidebar-user-role">Student</div>
+      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 6px;">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="app-main">
+    <header class="main-header">
+      <h2>Search Jobs</h2>
+      <span id="available-count-badge" style="font-size: 0.85rem; color: var(--text-muted);">Loading listings…</span>
+    </header>
+
+    <div class="main-content" style="max-width: 1200px;">
+      <div id="search-alert" class="alert-toast"></div>
+
+      <div class="search-layout">
+        <!-- Filters Sidebar (Figure 4.8) -->
+        <aside class="filters-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Filters</h3>
+            <button id="reset-filters-btn" class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;">Reset</button>
+          </div>
+
+          <!-- Industry Filter -->
+          <div class="filter-section">
+            <div class="filter-title">Industry</div>
+            <select id="industry-filter" class="form-control">
+              <option value="">All Industries</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Telecommunications">Telecommunications</option>
+              <option value="Banking & Finance">Banking & Finance</option>
+              <option value="Engineering & Energy">Engineering & Energy</option>
+              <option value="Cybersecurity">Cybersecurity</option>
+              <option value="E-Commerce & Tech">E-Commerce & Tech</option>
+            </select>
+          </div>
+
+          <!-- Job Type Filter -->
+          <div class="filter-section">
+            <div class="filter-title">Job Type</div>
+            <div class="filter-checkbox-group">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="jobType" value="Internship" checked /> Internship
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="jobType" value="Full-Time" /> Full-Time
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="jobType" value="Part-Time" /> Part-Time
+              </label>
+            </div>
+          </div>
+
+          <!-- Location Filter -->
+          <div class="filter-section">
+            <div class="filter-title">Location</div>
+            <select id="location-filter" class="form-control">
+              <option value="">All Locations</option>
+              <option value="Kuala Lumpur">Kuala Lumpur</option>
+              <option value="Selangor">Selangor</option>
+              <option value="Penang">Penang</option>
+              <option value="Cyberjaya">Cyberjaya</option>
+              <option value="Remote">Remote</option>
+            </select>
+          </div>
+
+          <!-- Required Skills Filter -->
+          <div class="filter-section">
+            <div class="filter-title">Required Skills</div>
+            <div class="filter-checkbox-group" id="skills-filter-group" style="max-height: 180px; overflow-y: auto;">
+              <!-- Populated dynamically with skill checkboxes -->
+            </div>
+          </div>
+
+          <button id="apply-filters-btn" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Apply Filters</button>
+        </aside>
+
+        <!-- Search Input & Results Feed -->
+        <div>
+          <!-- Search Bar -->
+          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="search-input" class="form-control" placeholder="Search job titles, companies, or keywords..." style="padding: 12px 16px;" />
+            <button id="search-btn" class="btn btn-primary" style="width: auto; padding: 12px 28px;">Search</button>
+          </div>
+
+          <!-- Results Container -->
+          <div id="search-results-container">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/search.js"></script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recommendation Accuracy Benchmark — InternMatch</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    .eval-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .metric-box {
+      background: #111822;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      text-align: center;
+    }
+    .metric-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="main-header">
+  <div class="brand-logo" style="padding:0; border:none;">
+    <span class="badge-logo">IM</span>
+    <span>InternMatch <span style="font-size:0.85rem; color:var(--cyan); font-weight:600;">/ Objective 4 Evaluation Suite</span></span>
+  </div>
+  <div>
+    <button id="run-eval-btn" class="btn btn-primary" style="width:auto;">▶ Run Accuracy Benchmark</button>
+  </div>
+</header>
+
+<div class="main-content" style="max-width: 1200px; margin: 0 auto; padding-top: 32px;">
+  <div class="eval-card">
+    <h2>Recommendation Engine Accuracy & Latency Evaluation</h2>
+    <p style="margin-top: 6px;">
+      This suite executes the mathematical matching engine across 10 standardized student archetypes and a 12-job corpus to compute <strong>Precision@K</strong>, <strong>Recall@K</strong>, <strong>Mean Average Precision (MAP)</strong>, and <strong>PR-4 Latency</strong>.
+    </p>
+
+    <div class="metric-grid" id="metrics-summary">
+      <div class="metric-box">
+        <div class="metric-title">Mean Precision@3</div>
+        <div class="metric-value" id="val-p3">--%</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Mean Precision@5</div>
+        <div class="metric-value" id="val-p5">--%</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Mean Recall@5</div>
+        <div class="metric-value" id="val-r5">--%</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Mean F1-Score@5</div>
+        <div class="metric-value" id="val-f1">--%</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Mean Avg Precision</div>
+        <div class="metric-value" id="val-map">--%</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Avg Latency (PR-4)</div>
+        <div class="metric-value" id="val-latency" style="color: var(--matched);">-- ms</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Results Table -->
+  <div class="data-table-container" style="margin-bottom: 32px;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Student Archetype</th>
+          <th>Top-3 Match Scores</th>
+          <th>Precision@3</th>
+          <th>Precision@5</th>
+          <th>Recall@5</th>
+          <th>AP</th>
+          <th>Latency</th>
+        </tr>
+      </thead>
+      <tbody id="eval-table-body">
+        <tr>
+          <td colspan="8" style="text-align:center; padding: 24px; color: var(--text-muted);">Click "Run Accuracy Benchmark" above to execute evaluation.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const jobCorpus = [
+  { id: 1, title: 'Software Engineer Intern', company: 'Petronas Digital', industry: 'Information Technology', req_tech: ['Python', 'JavaScript', 'React', 'SQL', 'Docker'], pref_tech: ['Git/Version Control'], soft: ['Communication', 'Problem Solving'], keywords: ['software engineering', 'web development', 'cloud'] },
+  { id: 2, title: 'Data Analyst Intern', company: 'Maxis Berhad', industry: 'Telecommunications', req_tech: ['Python', 'SQL', 'Data Analysis', 'Tableau'], pref_tech: ['R'], soft: ['Critical Thinking', 'Communication'], keywords: ['data analysis', 'business intelligence', 'reporting'] },
+  { id: 3, title: 'Junior Web Developer', company: 'Telekom Malaysia', industry: 'Information Technology', req_tech: ['JavaScript', 'React', 'TypeScript'], pref_tech: ['AWS', 'CI/CD'], soft: ['Teamwork'], keywords: ['frontend', 'web development', 'javascript'] },
+  { id: 4, title: 'Backend Developer Intern', company: 'Grab Holdings', industry: 'Information Technology', req_tech: ['Python', 'Go', 'Kubernetes'], pref_tech: ['SQL', 'Git/Version Control'], soft: ['Problem Solving'], keywords: ['backend', 'microservices', 'cloud'] },
+  { id: 5, title: 'UI/UX Design Intern', company: 'CIMB Bank', industry: 'Banking & Finance', req_tech: ['UI/UX Design', 'HTML/CSS'], pref_tech: ['Presentation Skills'], soft: ['Communication'], keywords: ['design', 'user experience', 'prototyping'] },
+  { id: 6, title: 'Cloud Engineer Intern', company: 'Celcom Axiata', industry: 'Telecommunications', req_tech: ['Cloud Computing', 'AWS', 'Networking'], pref_tech: ['CI/CD'], soft: ['Problem Solving'], keywords: ['cloud', 'devops', 'aws', 'infrastructure'] },
+  { id: 7, title: 'Electrical Power Trainee', company: 'TNB', industry: 'Engineering & Energy', req_tech: ['Circuit Design', 'MATLAB', 'AutoCAD'], pref_tech: ['Project Scheduling'], soft: ['Teamwork'], keywords: ['power systems', 'electrical engineering', 'energy'] },
+  { id: 8, title: 'Cybersecurity Analyst Intern', company: 'CyberSecurity Malaysia', industry: 'Cybersecurity', req_tech: ['Cybersecurity Fundamentals', 'Networking'], pref_tech: ['Python'], soft: ['Critical Thinking'], keywords: ['cybersecurity', 'soc', 'threats'] },
+  { id: 9, title: 'AI & ML Graduate Trainee', company: 'Shopee Malaysia', industry: 'E-Commerce & Tech', req_tech: ['Python', 'Machine Learning', 'Data Analysis', 'SQL'], pref_tech: ['Git/Version Control'], soft: ['Problem Solving'], keywords: ['artificial intelligence', 'machine learning', 'data science'] },
+  { id: 10, title: 'Frontend Engineer Intern', company: 'Carsome', industry: 'Information Technology', req_tech: ['HTML/CSS', 'JavaScript', 'React'], pref_tech: ['TypeScript'], soft: ['Communication'], keywords: ['web development', 'frontend', 'react'] },
+  { id: 11, title: 'Database Administrator Trainee', company: 'Maybank', industry: 'Banking & Finance', req_tech: ['SQL', 'Database Management'], pref_tech: ['Python'], soft: ['Time Management'], keywords: ['database', 'sql', 'banking'] },
+  { id: 12, title: 'DevOps Intern', company: 'MoneyLion', industry: 'Information Technology', req_tech: ['Docker', 'AWS', 'CI/CD', 'Git/Version Control'], pref_tech: ['Kubernetes'], soft: ['Adaptability'], keywords: ['devops', 'cloud', 'automation'] }
+];
+
+const studentProfiles = [
+  { profile_id: 'P01', name: 'Osama (Software Engineering)', field: 'Software Engineering', skills: ['Python', 'JavaScript', 'React', 'SQL', 'Docker', 'Communication', 'Problem Solving'], interests: 'Web Development, Software Engineering', ground_truth: [1, 3, 4, 10, 12] },
+  { profile_id: 'P02', name: 'Aishah (Data Science)', field: 'Computer Science', skills: ['Python', 'SQL', 'Data Analysis', 'Tableau', 'R', 'Critical Thinking'], interests: 'Data Analytics, Business Intelligence', ground_truth: [2, 9, 11] },
+  { profile_id: 'P03', name: 'Haziq (Electrical Power Eng.)', field: 'Electrical Power Engineering', skills: ['Circuit Design', 'MATLAB', 'AutoCAD', 'Teamwork', 'Project Scheduling'], interests: 'Power Systems, Energy, Electrical Engineering', ground_truth: [7] },
+  { profile_id: 'P04', name: 'Farhan (Cybersecurity)', field: 'Computer Science', skills: ['Cybersecurity Fundamentals', 'Networking', 'Python', 'Critical Thinking'], interests: 'Cybersecurity, Threat Analysis', ground_truth: [8, 6] },
+  { profile_id: 'P05', name: 'Mei Ling (UI/UX Focus)', field: 'Software Engineering', skills: ['HTML/CSS', 'JavaScript', 'React', 'UI/UX Design', 'Communication'], interests: 'Frontend Development, UI/UX Design', ground_truth: [5, 10, 3, 1] },
+  { profile_id: 'P06', name: 'Devan (Cloud & DevOps)', field: 'Information Technology', skills: ['Cloud Computing', 'AWS', 'Docker', 'CI/CD', 'Git/Version Control', 'Networking'], interests: 'Cloud Architecture, DevOps', ground_truth: [6, 12, 4, 1] },
+  { profile_id: 'P07', name: 'Siti (AI & Machine Learning)', field: 'Computer Science', skills: ['Python', 'Machine Learning', 'Data Analysis', 'SQL', 'Problem Solving'], interests: 'Machine Learning, Artificial Intelligence, Data Science', ground_truth: [9, 2, 1] },
+  { profile_id: 'P08', name: 'Kevin (Full-Stack Web)', field: 'Software Engineering', skills: ['JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL', 'Git/Version Control', 'Teamwork'], interests: 'Web Engineering, Full-Stack Development', ground_truth: [3, 10, 1, 4] },
+  { profile_id: 'P09', name: 'Nurul (Database Systems)', field: 'Information Technology', skills: ['SQL', 'Database Management', 'Python', 'Excel', 'Time Management'], interests: 'Database Administration, IT Operations', ground_truth: [11, 2, 1] },
+  { profile_id: 'P10', name: 'Syahmi (Backend Microservices)', field: 'Computer Science', skills: ['Python', 'Go', 'Kubernetes', 'Docker', 'SQL', 'Problem Solving'], interests: 'Backend Engineering, Microservices', ground_truth: [4, 1, 12] }
+];
+
+function computeMatchScore(student, job) {
+  const reqTech = job.req_tech || [];
+  const s_req = reqTech.length === 0 ? 1.0 : reqTech.filter(sk => student.skills.includes(sk)).length / reqTech.length;
+  const prefTech = job.pref_tech || [];
+  const s_pref = prefTech.length === 0 ? 1.0 : prefTech.filter(sk => student.skills.includes(sk)).length / prefTech.length;
+  const soft = job.soft || [];
+  const s_soft = soft.length === 0 ? 1.0 : soft.filter(sk => student.skills.includes(sk)).length / soft.length;
+
+  let s_field = 0.2;
+  const ind = job.industry.toLowerCase();
+  const uf = student.field.toLowerCase();
+  if (ind.includes(uf) || uf.includes(ind) ||
+      (['computer science', 'software engineering', 'information technology'].includes(uf) && ['information technology', 'software', 'telecommunications', 'e-commerce & tech', 'cybersecurity'].includes(ind))) {
+    s_field = 1.0;
+  } else if (['electrical power engineering', 'engineering'].includes(uf) && ind.includes('engineering')) {
+    s_field = 1.0;
+  }
+
+  let s_interest = 0.3;
+  const userInterests = student.interests.toLowerCase();
+  if (job.keywords.some(kw => userInterests.includes(kw)) || job.title.toLowerCase().includes(userInterests)) {
+    s_interest = 1.0;
+  }
+
+  const score = ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_soft) + (0.10 * s_field) + (0.05 * s_interest)) * 100;
+  return Math.round(score * 100) / 100;
+}
+
+function runBenchmark() {
+  const pAt3List = [];
+  const pAt5List = [];
+  const recallAt5List = [];
+  const apList = [];
+  const timingList = [];
+
+  const tbody = document.getElementById('eval-table-body');
+  tbody.innerHTML = '';
+
+  studentProfiles.forEach(student => {
+    const t0 = performance.now();
+    const scoredJobs = jobCorpus.map(job => ({
+      job_id: job.id,
+      title: job.title,
+      score: computeMatchScore(student, job)
+    })).sort((a, b) => b.score - a.score);
+
+    const t1 = performance.now();
+    const latency = t1 - t0;
+    timingList.push(latency);
+
+    const groundTruth = student.ground_truth;
+    const totalRelevant = groundTruth.length;
+
+    const top3 = scoredJobs.slice(0, 3);
+    const rel3 = top3.filter(j => groundTruth.includes(j.job_id)).length;
+    const p3 = rel3 / 3;
+    pAt3List.push(p3);
+
+    const top5 = scoredJobs.slice(0, 5);
+    const rel5 = top5.filter(j => groundTruth.includes(j.job_id)).length;
+    const p5 = rel5 / 5;
+    pAt5List.push(p5);
+
+    const r5 = totalRelevant > 0 ? rel5 / totalRelevant : 1.0;
+    recallAt5List.push(r5);
+
+    let cumulativeRel = 0;
+    let sumPrecision = 0;
+    scoredJobs.forEach((job, rank) => {
+      if (groundTruth.includes(job.job_id)) {
+        cumulativeRel++;
+        sumPrecision += cumulativeRel / (rank + 1);
+      }
+    });
+    const ap = totalRelevant > 0 ? sumPrecision / totalRelevant : 1.0;
+    apList.push(ap);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:700; color:var(--cyan);">${student.profile_id}</td>
+      <td style="font-weight:600;">${student.name}</td>
+      <td><span style="font-size:0.85rem; color:var(--text-muted);">${top3.map(j => `${j.score}%`).join(', ')}</span></td>
+      <td><span class="status-badge status-badge--active">${(p3 * 100).toFixed(0)}%</span></td>
+      <td><span class="status-badge status-badge--active">${(p5 * 100).toFixed(0)}%</span></td>
+      <td><span class="status-badge status-badge--active">${(r5 * 100).toFixed(0)}%</span></td>
+      <td>${(ap * 100).toFixed(1)}%</td>
+      <td style="font-family:var(--font-mono); font-size:0.82rem; color:var(--matched);">${latency.toFixed(2)} ms</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+  const meanP3 = avg(pAt3List);
+  const meanP5 = avg(pAt5List);
+  const meanR5 = avg(recallAt5List);
+  const meanMAP = avg(apList);
+  const meanLatency = avg(timingList);
+  const f1At5 = (2 * meanP5 * meanR5) / (meanP5 + meanR5);
+
+  document.getElementById('val-p3').textContent = `${(meanP3 * 100).toFixed(1)}%`;
+  document.getElementById('val-p5').textContent = `${(meanP5 * 100).toFixed(1)}%`;
+  document.getElementById('val-r5').textContent = `${(meanR5 * 100).toFixed(1)}%`;
+  document.getElementById('val-f1').textContent = `${(f1At5 * 100).toFixed(1)}%`;
+  document.getElementById('val-map').textContent = `${(meanMAP * 100).toFixed(1)}%`;
+  document.getElementById('val-latency').textContent = `${meanLatency.toFixed(2)} ms`;
+}
+
+document.getElementById('run-eval-btn').addEventListener('click', runBenchmark);
+window.addEventListener('load', runBenchmark);
+</script>
+</body>
+</html>

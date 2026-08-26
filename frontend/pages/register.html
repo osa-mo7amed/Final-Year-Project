@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — InternMatch</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <style>
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      background: radial-gradient(circle at top center, #1b283d 0%, #0d1117 75%);
+    }
+    .auth-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 36px 32px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+    }
+    .auth-brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-weight: 800;
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-brand-badge">IM</div>
+    <h2>Create your account</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; margin-bottom: 24px;">
+      Start matching with the right opportunities
+    </p>
+
+    <div id="form-alert" class="alert-toast"></div>
+
+    <form id="register-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="fullName">Full name *</label>
+        <input type="text" id="fullName" name="fullName" class="form-control" placeholder="e.g. Osama Mohammed Ali Abdaslam" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email address *</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="e.g. osama@student.uniten.edu.my" required />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-label" for="password">Password *</label>
+          <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Confirm password *</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="••••••••" required />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-label" for="fieldOfStudy">Field of study</label>
+          <input type="text" id="fieldOfStudy" name="fieldOfStudy" class="form-control" placeholder="e.g. Software Engineering" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="academicStatus">Academic status *</label>
+          <select id="academicStatus" name="academicStatus" class="form-control" required>
+            <option value="Student">Currently Enrolled</option>
+            <option value="Graduate">Fresh Graduate</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn btn-primary" style="margin-top: 10px;">Create Account →</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 24px; font-size: 0.88rem; color: var(--text-muted);">
+      Already have an account? <a href="login.html" style="font-weight: 600; color: #38bdf8;">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  document.getElementById('register-form').addEventListener('submit', handleRegister);
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard — InternMatch</title>
+<link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar__mark">InternMatch <span style="color: var(--amber); font-weight: 600;">· Admin</span></div>
+  <button id="logout-btn" class="btn btn--ghost" style="width:auto; padding:8px 16px;">Log out</button>
+</div>
+
+<div class="page-body">
+  <div class="card">
+    <h2 id="welcome-msg">Loading…</h2>
+    <p style="color: var(--muted); margin-top: 8px;">
+      This is a placeholder — Manage Job Postings (FR-7) and Manage User Accounts (FR-8)
+      are built in the Admin module. Role-based redirect is verified and working if you can see this page.
+    </p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  (async () => {
+    const result = await requireAuth('Admin');
+    if (!result) return;
+    document.getElementById('welcome-msg').textContent =
+      `Welcome, ${result.profile.full_name} (Administrator)`;
+  })();
+
+  document.getElementById('logout-btn').addEventListener('click', handleLogout);
+</script>
+</body>
+</html>

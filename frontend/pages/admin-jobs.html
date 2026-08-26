@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin: Manage Jobs — InternMatch</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+<!-- Admin Header Bar (Figure 4.9) -->
+<header class="main-header" style="position: sticky; top: 0;">
+  <div class="brand-logo" style="padding: 0; border: none;">
+    <span class="badge-logo">IM</span>
+    <span>InternMatch <span style="font-size: 0.85rem; color: var(--amber); font-weight: 600;">/ Administrator Panel</span></span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <a href="admin-jobs.html" style="font-weight: 700; color: #38bdf8; text-decoration: none; border-bottom: 2px solid #38bdf8; padding-bottom: 4px;">Manage Jobs</a>
+    <a href="admin-users.html" style="font-weight: 500; color: var(--text-muted); text-decoration: none;">Manage Users</a>
+    <button id="logout-btn" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.82rem;">Sign Out</button>
+  </div>
+</header>
+
+<div class="main-content" style="max-width: 1200px; margin: 0 auto; padding-top: 32px;">
+  <div id="admin-alert" class="alert-toast"></div>
+
+  <!-- Page Title & Actions -->
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <h2>Job Postings</h2>
+      <p id="active-jobs-count">Loading active listings count…</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <input type="text" id="job-search-input" class="form-control" placeholder="Search postings..." style="width: 260px;" />
+      <button id="open-add-job-btn" class="btn btn-primary">+ Add New Job</button>
+    </div>
+  </div>
+
+  <!-- Job Postings Table (Figure 4.9) -->
+  <div class="data-table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Job Title</th>
+          <th>Company</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Deadline</th>
+          <th>Status</th>
+          <th style="text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="jobs-table-body">
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted);">Loading job postings…</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table Pagination Footer -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 0.85rem; color: var(--text-muted);">
+    <div id="pagination-info">Showing results</div>
+    <div style="display: flex; gap: 6px;" id="pagination-controls">
+      <!-- Generated dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Job Modal -->
+<div class="modal-overlay" id="job-form-modal">
+  <div class="modal-box" style="max-width: 680px;">
+    <div class="card-header">
+      <h3 id="modal-title">Create Job Posting</h3>
+      <button class="btn btn-outline" id="close-job-modal-btn" style="padding: 4px 10px; font-size: 0.8rem;">✕ Close</button>
+    </div>
+
+    <form id="job-crud-form">
+      <input type="hidden" id="crud-job-id" />
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-label" for="jobTitle">Job Title *</label>
+          <input type="text" id="jobTitle" class="form-control" required placeholder="e.g. Software Engineer Intern" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="companyName">Company Name *</label>
+          <input type="text" id="companyName" class="form-control" required placeholder="e.g. Petronas Digital Sdn. Bhd." />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-label" for="jobTypeSelect">Job Type *</label>
+          <select id="jobTypeSelect" class="form-control" required>
+            <option value="Internship">Internship</option>
+            <option value="Full-Time">Full-Time</option>
+            <option value="Part-Time">Part-Time</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="jobLocation">Location *</label>
+          <input type="text" id="jobLocation" class="form-control" required placeholder="e.g. Kuala Lumpur" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="jobIndustry">Industry</label>
+          <select id="jobIndustry" class="form-control">
+            <option value="Information Technology">Information Technology</option>
+            <option value="Telecommunications">Telecommunications</option>
+            <option value="Banking & Finance">Banking & Finance</option>
+            <option value="Engineering & Energy">Engineering & Energy</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+            <option value="E-Commerce & Tech">E-Commerce & Tech</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+        <div class="form-group">
+          <label class="form-label" for="jobDeadline">Application Deadline</label>
+          <input type="date" id="jobDeadline" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="jobStatusSelect">Status *</label>
+          <select id="jobStatusSelect" class="form-control">
+            <option value="Active">Active</option>
+            <option value="Closed">Closed</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="jobDescription">Job Description & Responsibilities *</label>
+        <textarea id="jobDescription" class="form-control" rows="4" required placeholder="Outline role responsibilities, project scope, and qualifications..."></textarea>
+      </div>
+
+      <!-- Skill Tagging for Job -->
+      <div class="form-group">
+        <label class="form-label">Required / Preferred Skills Tagging</label>
+        <div class="tag-container" id="modal-job-skills-tags" style="margin-bottom: 8px;"></div>
+        <div style="display: flex; gap: 10px;">
+          <select id="modal-skill-picker" class="form-control">
+            <option value="" disabled selected>Select a skill to attach...</option>
+          </select>
+          <select id="modal-skill-req" class="form-control" style="max-width: 140px;">
+            <option value="true">Mandatory</option>
+            <option value="false">Preferred</option>
+          </select>
+          <button type="button" id="modal-add-skill-btn" class="btn btn-secondary">+ Attach</button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button type="button" class="btn btn-outline" id="cancel-job-modal-btn" style="width: auto;">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="save-job-submit-btn" style="width: auto;">Save Job Posting</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/admin-jobs.js"></script>
+</body>
+</html>
