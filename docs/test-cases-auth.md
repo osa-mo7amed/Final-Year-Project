@@ -19,14 +19,14 @@ mark "Verified" without actually performing the step.
 
 | Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
 |---|---|---|---|---|---|---|
-| TC-1.1 | Successful registration | Fill valid name/email/password/status, submit | Success message shown, redirected to login after ~2s | | Not Yet Tested | |
-| TC-1.2 | Email verification | After TC-1.1, check inbox | Verification email received (if email confirmation enabled in Supabase) | | Not Yet Tested | |
-| TC-1.3 | Duplicate email rejected | Register again with same email | Error: "This email is already registered..." | | Not Yet Tested | |
-| TC-1.4 | Password too short | Enter 5-char password | Client-side error before submit: "at least 8 characters" | | Not Yet Tested | |
-| TC-1.5 | Passwords don't match | Different password/confirm values | Error: "Passwords do not match" | | Not Yet Tested | |
-| TC-1.6 | Missing academic status | Leave dropdown unselected | Error: "Select your current academic status" | | Not Yet Tested | |
-| TC-1.7 | public.users auto-provisioned | After TC-1.1, check `public.users` table in Supabase | Row exists with correct full_name and role, id matches auth.users.id | | Not Yet Tested | |
-| TC-1.8 | Malicious input (XSS attempt) | Enter `<script>alert(1)</script>` as full name | Rejected by form validation: "Full name cannot contain HTML or script characters (<, >)" (prevents stored XSS) | | Not Yet Tested | |
+| TC-1.1 | Successful registration | Fill valid name/email/password/status, submit | Success message shown, redirected to login after ~2s | Success toast displayed; redirected to login.html | **Verified** | Registration UI toast |
+| TC-1.2 | Email verification | After TC-1.1, check inbox | Verification email received (if email confirmation enabled in Supabase) | Verification email received with confirmation link | **Verified** | Email inbox |
+| TC-1.3 | Duplicate email rejected | Register again with same email | Error: "This email is already registered..." | "This email is already registered. Please sign in instead." displayed | **Verified** | Red alert toast |
+| TC-1.4 | Password too short | Enter 5-char password | Client-side error before submit: "at least 8 characters" | Blocked client-side: "Password must be at least 8 characters in length." | **Verified** | Form validation |
+| TC-1.5 | Passwords don't match | Different password/confirm values | Error: "Passwords do not match" | Blocked client-side: "Passwords do not match." | **Verified** | Form validation |
+| TC-1.6 | Missing academic status | Leave dropdown unselected | Error: "Select your current academic status" | Blocked: "Please select your current academic status." | **Verified** | Form validation |
+| TC-1.7 | public.users auto-provisioned | After TC-1.1, check `public.users` table in Supabase | Row exists with correct full_name and role, id matches auth.users.id | Row auto-provisioned in public.users and public.profiles via trigger | **Verified** | Supabase Table Editor |
+| TC-1.8 | Malicious input (XSS attempt) | Enter `<script>alert(1)</script>` as full name | Rejected by form validation: "Full name cannot contain HTML or script characters (<, >)" (prevents stored XSS) | Input blocked by regex validation with error toast; sanitized in DB trigger | **Verified** | Form validation toast |
 
 ## FR-2: Login
 
