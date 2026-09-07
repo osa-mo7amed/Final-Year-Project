@@ -128,22 +128,20 @@ async function handleLogin(event) {
     .from('users')
     .select('role, account_status')
     .eq('id', data.user.id)
-    .single();
+    .maybeSingle();
 
   setLoading(submitBtn, false, 'Sign In →');
 
-  if (userError || !userRow) {
-    // If trigger hadn't fired or row missing, redirect to student dashboard as safe default
-    window.location.href = 'dashboard.html';
-    return;
-  }
-
-  if (userRow.account_status === 'Inactive') {
+  if (userRow && userRow.account_status === 'Inactive') {
     await supabaseClient.auth.signOut();
     return showAlert(alertBox, 'This account has been deactivated. Please contact the system administrator.', 'error');
   }
 
-  window.location.href = userRow.role === 'Admin' ? 'admin-jobs.html' : 'dashboard.html';
+  // Determine effective role: prioritize public.users, fallback to user_metadata
+  const effectiveRole = userRow?.role || data.user.user_metadata?.role || 'Student';
+
+  // Role-based routing: Admin -> admin-dashboard.html (Figure 4.3 / TC-2.2), Student -> dashboard.html
+  window.location.href = effectiveRole === 'Admin' ? 'admin-dashboard.html' : 'dashboard.html';
 }
 
 // ----------------------------------------------------------------------------
@@ -169,13 +167,21 @@ async function requireAuth(requiredRole = null) {
       .from('users')
       .select('role, full_name')
       .eq('id', session.user.id)
-      .single();
+      .maybeSingle();
 
-    if (!userRow || userRow.role !== requiredRole) {
+    const effectiveRole = userRow?.role || session.user.user_metadata?.role || 'Student';
+
+    if (effectiveRole !== requiredRole) {
       window.location.href = 'dashboard.html';
       return null;
     }
-    return { session, profile: userRow };
+    return {
+      session,
+      profile: userRow || {
+        role: effectiveRole,
+        full_name: session.user.user_metadata?.full_name || 'Administrator'
+      }
+    };
   }
 
   return { session };
