@@ -33,7 +33,7 @@ mark "Verified" without actually performing the step.
 | Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
 |---|---|---|---|---|---|---|
 | TC-2.1 | Successful login (Student) | Log in with verified Student account | Redirected to `dashboard.html`, name shown | | Not Yet Tested | |
-| TC-2.2 | Successful login (Admin) | Manually set a user's role to 'Admin' in Supabase, log in | Redirected to `admin-dashboard.html` | | Not Yet Tested | |
+| TC-2.2 | Successful login (Admin) | Manually set a user's role to 'Admin' in Supabase, log in | Redirected to `admin-dashboard.html` | Redirected to `admin-dashboard.html` with RBAC verification badge ("Role-Based Access Control Verified: Administrator privileges active") | **Verified** | Admin dashboard banner / console log |
 | TC-2.3 | Wrong password | Correct email, wrong password | Generic error: "Incorrect email or password." (does not say which field) | | Not Yet Tested | |
 | TC-2.4 | Non-existent email | Unregistered email | Same generic error as TC-2.3 (no field-specific leak) | | Not Yet Tested | |
 | TC-2.5 | Deactivated account | Set `account_status = 'Inactive'` for a user, attempt login | Signed out immediately, error: "This account has been deactivated." | | Not Yet Tested | |
