@@ -71,17 +71,23 @@ async function handleRegister(event) {
   setLoading(submitBtn, false, 'Create Account →');
 
   if (error) {
-    if (error.message.toLowerCase().includes('already registered')) {
+    if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('user already exists')) {
       return showAlert(alertBox, 'This email is already registered. Please sign in instead.', 'error');
     }
     return showAlert(alertBox, `Registration failed: ${error.message}`, 'error');
   }
 
-  showAlert(alertBox, 'Account created successfully! Check your email if verification is required, or sign in now.', 'success');
+  // Supabase email enumeration defense: if the email already exists,
+  // signUp() succeeds with an empty identities array to avoid leaking user presence.
+  if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    return showAlert(alertBox, 'This email is already registered. Please sign in instead.', 'error');
+  }
+
+  showAlert(alertBox, 'Account created successfully! Check your email to verify your account, then sign in.', 'success');
   form.reset();
   setTimeout(() => {
     window.location.href = 'login.html';
-  }, 2000);
+  }, 2500);
 }
 
 // ----------------------------------------------------------------------------
