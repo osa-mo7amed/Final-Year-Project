@@ -26,7 +26,7 @@ mark "Verified" without actually performing the step.
 | TC-1.5 | Passwords don't match | Different password/confirm values | Error: "Passwords do not match" | | Not Yet Tested | |
 | TC-1.6 | Missing academic status | Leave dropdown unselected | Error: "Select your current academic status" | | Not Yet Tested | |
 | TC-1.7 | public.users auto-provisioned | After TC-1.1, check `public.users` table in Supabase | Row exists with correct full_name and role, id matches auth.users.id | | Not Yet Tested | |
-| TC-1.8 | Malicious input (XSS attempt) | Enter `<script>alert(1)</script>` as full name | Stored/escaped safely, not executed when rendered on dashboard | | Not Yet Tested | |
+| TC-1.8 | Malicious input (XSS attempt) | Enter `<script>alert(1)</script>` as full name | Rejected by form validation: "Full name cannot contain HTML or script characters (<, >)" (prevents stored XSS) | | Not Yet Tested | |
 
 ## FR-2: Login
 

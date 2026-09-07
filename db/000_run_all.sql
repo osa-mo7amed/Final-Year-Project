@@ -192,11 +192,11 @@ begin
     v_role := 'Graduate'::public.user_role;
   end if;
 
-  -- 1. Insert or update public.users
+  -- 1. Insert or update public.users (sanitizing HTML tags for XSS defense)
   insert into public.users (id, full_name, role)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'full_name', 'Unnamed User'),
+    replace(replace(coalesce(new.raw_user_meta_data->>'full_name', 'Unnamed User'), '<', '&lt;'), '>', '&gt;'),
     v_role
   )
   on conflict (id) do update
@@ -204,11 +204,11 @@ begin
         role = excluded.role,
         updated_at = now();
 
-  -- 2. Auto-provision matching profile record
+  -- 2. Auto-provision matching profile record (sanitizing HTML tags)
   insert into public.profiles (user_id, field_of_study)
   values (
     new.id,
-    nullif(trim(coalesce(new.raw_user_meta_data->>'field_of_study', '')), '')
+    nullif(trim(replace(replace(coalesce(new.raw_user_meta_data->>'field_of_study', ''), '<', '&lt;'), '>', '&gt;')), '')
   )
   on conflict (user_id) do nothing;
 

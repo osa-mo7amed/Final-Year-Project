@@ -41,6 +41,12 @@ async function handleRegister(event) {
   if (!fullName || fullName.length < 2) {
     return showAlert(alertBox, 'Please enter your full name.', 'error');
   }
+  if (/[<>]|script/i.test(fullName)) {
+    return showAlert(alertBox, 'Full name cannot contain HTML or script characters (<, >).', 'error');
+  }
+  if (fieldOfStudy && /[<>]|script/i.test(fieldOfStudy)) {
+    return showAlert(alertBox, 'Field of study cannot contain HTML or script characters.', 'error');
+  }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return showAlert(alertBox, 'Please enter a valid university or personal email address.', 'error');
   }
