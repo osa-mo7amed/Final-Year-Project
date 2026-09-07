@@ -130,6 +130,10 @@ async function handleLogin(event) {
     .eq('id', data.user.id)
     .maybeSingle();
 
+  if (userError) {
+    console.error('Error fetching user row from public.users:', userError);
+  }
+
   setLoading(submitBtn, false, 'Sign In →');
 
   if (userRow && userRow.account_status === 'Inactive') {
@@ -137,11 +141,38 @@ async function handleLogin(event) {
     return showAlert(alertBox, 'This account has been deactivated. Please contact the system administrator.', 'error');
   }
 
-  // Determine effective role: prioritize public.users, fallback to user_metadata
-  const effectiveRole = userRow?.role || data.user.user_metadata?.role || 'Student';
+  // Helper to resolve effective user role across public.users, user_metadata, and app_metadata
+  const effectiveRole = resolveEffectiveRole(userRow, data.user);
+
+  console.log('[Auth] Login successful. Role resolution:', {
+    effectiveRole,
+    dbRole: userRow?.role,
+    metaRole: data.user.user_metadata?.role,
+    userRow,
+    userError
+  });
 
   // Role-based routing: Admin -> admin-dashboard.html (Figure 4.3 / TC-2.2), Student -> dashboard.html
   window.location.href = effectiveRole === 'Admin' ? 'admin-dashboard.html' : 'dashboard.html';
+}
+
+// ----------------------------------------------------------------------------
+// Helper: Resolve effective user role across DB and metadata sources
+// ----------------------------------------------------------------------------
+function resolveEffectiveRole(userRow, authUser) {
+  const dbRole = userRow?.role ? String(userRow.role).trim() : null;
+  const metaRole = authUser?.user_metadata?.role ? String(authUser.user_metadata.role).trim() : null;
+  const appRole = authUser?.app_metadata?.role ? String(authUser.app_metadata.role).trim() : null;
+
+  // Case-insensitive check: if ANY source designates Admin, authorize as Admin
+  if ([dbRole, metaRole, appRole].some(r => r && r.toLowerCase() === 'admin')) {
+    return 'Admin';
+  }
+  // Check if any source designates Graduate
+  if ([dbRole, metaRole, appRole].some(r => r && (r.toLowerCase() === 'graduate' || r.toLowerCase() === 'fresh graduate'))) {
+    return 'Graduate';
+  }
+  return dbRole || metaRole || appRole || 'Student';
 }
 
 // ----------------------------------------------------------------------------
@@ -163,15 +194,29 @@ async function requireAuth(requiredRole = null) {
   }
 
   if (requiredRole) {
-    const { data: userRow } = await supabaseClient
+    const { data: userRow, error: userError } = await supabaseClient
       .from('users')
       .select('role, full_name')
       .eq('id', session.user.id)
       .maybeSingle();
 
-    const effectiveRole = userRow?.role || session.user.user_metadata?.role || 'Student';
+    if (userError) {
+      console.error('[requireAuth] Error querying public.users:', userError);
+    }
 
-    if (effectiveRole !== requiredRole) {
+    const effectiveRole = resolveEffectiveRole(userRow, session.user);
+
+    console.log('[requireAuth] Check:', {
+      requiredRole,
+      effectiveRole,
+      dbRole: userRow?.role,
+      metaRole: session.user.user_metadata?.role,
+      userRow,
+      userError
+    });
+
+    if (effectiveRole.toLowerCase() !== requiredRole.toLowerCase()) {
+      console.warn(`Access denied to ${requiredRole} route. User has role ${effectiveRole}. Redirecting to student dashboard.`);
       window.location.href = 'dashboard.html';
       return null;
     }

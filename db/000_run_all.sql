@@ -245,17 +245,40 @@ alter table public.applications enable row level security;
 alter table public.skill_guidance enable row level security;
 
 create or replace function public.is_admin()
-returns boolean as $$
-  select exists (
-    select 1 from public.users
-    where id = auth.uid() and role = 'Admin'
-  );
-$$ language sql security definer stable;
+returns boolean
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  v_role text;
+begin
+  -- 1. Check user_metadata in JWT (instant, zero table recursion)
+  if coalesce(auth.jwt()->'user_metadata'->>'role', '') = 'Admin' then
+    return true;
+  end if;
+
+  -- 2. Check public.users directly
+  select role::text into v_role
+  from public.users
+  where id = auth.uid();
+
+  return coalesce(v_role = 'Admin', false);
+end;
+$$;
 
 -- Users policies
 drop policy if exists "users_select_own_or_admin" on public.users;
-create policy "users_select_own_or_admin" on public.users
-  for select using (id = auth.uid() or public.is_admin());
+drop policy if exists "users_select_own" on public.users;
+drop policy if exists "users_select_all_admin" on public.users;
+
+-- Policy 1: Any user can read their OWN row directly. Zero function calls. Zero recursion.
+create policy "users_select_own" on public.users
+  for select using (id = auth.uid());
+
+-- Policy 2: Admins can read all rows
+create policy "users_select_all_admin" on public.users
+  for select using (public.is_admin());
 
 drop policy if exists "users_insert_own" on public.users;
 create policy "users_insert_own" on public.users
@@ -268,6 +291,26 @@ create policy "users_update_own" on public.users
 drop policy if exists "users_update_admin" on public.users;
 create policy "users_update_admin" on public.users
   for update using (public.is_admin());
+
+-- Automatically sync role updates from public.users to auth.users user_metadata
+create or replace function public.sync_user_role_to_auth()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+begin
+  update auth.users
+  set raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || jsonb_build_object('role', new.role::text)
+  where id = new.id;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_sync_user_role on public.users;
+create trigger trg_sync_user_role
+  after update of role on public.users
+  for each row execute function public.sync_user_role_to_auth();
 
 -- Profiles policies
 drop policy if exists "profiles_select_own_or_admin" on public.profiles;
