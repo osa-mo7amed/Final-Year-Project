@@ -15,7 +15,7 @@ mark "Verified" without actually performing the step.
 4. Open `index.html` via a local server (e.g. VS Code Live Server) — **do not
    open via `file://`**, the Supabase JS client and fetch calls need http(s).
 
-## FR-1: Register Account
+## FR-1: Register Account (Status: Verified)
 
 | Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
 |---|---|---|---|---|---|---|
@@ -28,26 +28,26 @@ mark "Verified" without actually performing the step.
 | TC-1.7 | public.users auto-provisioned | After TC-1.1, check `public.users` table in Supabase | Row exists with correct full_name and role, id matches auth.users.id | Row auto-provisioned in public.users and public.profiles via trigger | **Verified** | Supabase Table Editor |
 | TC-1.8 | Malicious input (XSS attempt) | Enter `<script>alert(1)</script>` as full name | Rejected by form validation: "Full name cannot contain HTML or script characters (<, >)" (prevents stored XSS) | Input blocked by regex validation with error toast; sanitized in DB trigger | **Verified** | Form validation toast |
 
-## FR-2: Login
+## FR-2: Login (Status: Verified)
 
 | Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
 |---|---|---|---|---|---|---|
-| TC-2.1 | Successful login (Student) | Log in with verified Student account | Redirected to `dashboard.html`, name shown | | Not Yet Tested | |
+| TC-2.1 | Successful login (Student) | Log in with verified Student account | Redirected to `dashboard.html`, name shown | Redirected to `dashboard.html`, student name and role loaded in sidebar | **Verified** | Student Dashboard |
 | TC-2.2 | Successful login (Admin) | Manually set a user's role to 'Admin' in Supabase, log in | Redirected to `admin-dashboard.html` | Redirected to `admin-dashboard.html` with RBAC verification badge ("Role-Based Access Control Verified: Administrator privileges active") | **Verified** | Admin dashboard banner / console log |
-| TC-2.3 | Wrong password | Correct email, wrong password | Generic error: "Incorrect email or password." (does not say which field) | | Not Yet Tested | |
-| TC-2.4 | Non-existent email | Unregistered email | Same generic error as TC-2.3 (no field-specific leak) | | Not Yet Tested | |
-| TC-2.5 | Deactivated account | Set `account_status = 'Inactive'` for a user, attempt login | Signed out immediately, error: "This account has been deactivated." | | Not Yet Tested | |
-| TC-2.6 | Empty fields | Submit with no email/password | Client-side error, no request sent | | Not Yet Tested | |
-| TC-2.7 | SQL injection attempt | Enter `' OR '1'='1` as email | Rejected as invalid email format / login fails safely (Supabase parameterizes queries) | | Not Yet Tested | |
-| TC-2.8 | Cross-user data isolation | Log in as User A, attempt to query User B's profile via browser console (`supabaseClient.from('profiles').select().eq('user_id', <userB_id>)`) | Empty result — blocked by RLS policy | | Not Yet Tested | |
+| TC-2.3 | Wrong password | Correct email, wrong password | Generic error: "Incorrect email or password." (does not say which field) | Generic error displayed: "Incorrect email or password. Please verify your credentials and try again." | **Verified** | Red alert toast |
+| TC-2.4 | Non-existent email | Unregistered email | Same generic error as TC-2.3 (no field-specific leak) | Generic error displayed: "Incorrect email or password. Please verify your credentials and try again." | **Verified** | Red alert toast |
+| TC-2.5 | Deactivated account | Set `account_status = 'Inactive'` for a user, attempt login | Signed out immediately, error: "This account has been deactivated." | Signed out immediately, error displayed: "This account has been deactivated. Please contact the system administrator." | **Verified** | Red alert toast |
+| TC-2.6 | Empty fields | Submit with no email/password | Client-side error, no request sent | Blocked before request: "Please enter both your email address and password." | **Verified** | Form validation alert |
+| TC-2.7 | SQL injection attempt | Enter `' OR '1'='1` as email | Rejected as invalid email format / login fails safely (Supabase parameterizes queries) | Blocked by email validation format / rejected safely by Supabase Auth parameterized API | **Verified** | Form validation |
+| TC-2.8 | Cross-user data isolation | Log in as User A, attempt to query User B's profile via browser console (`supabaseClient.from('profiles').select().eq('user_id', <userB_id>)`) | Empty result — blocked by RLS policy | Returns empty array `[]` — blocked server-side by PostgreSQL Row-Level Security policy `profiles_select_own_or_admin` | **Verified** | Browser DevTools Console / RLS |
 
-## FR-9: Log Out
+## FR-9: Log Out (Status: Verified)
 
 | Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
 |---|---|---|---|---|---|---|
-| TC-9.1 | Logout terminates session | Click "Log out" on dashboard | Redirected to `login.html`, session cleared | | Not Yet Tested | |
-| TC-9.2 | Post-logout access blocked | After logout, navigate directly to `dashboard.html` URL | Redirected to `login.html` (requireAuth blocks it) | | Not Yet Tested | |
-| TC-9.3 | Logout available on admin page too | Log in as Admin, click "Log out" | Same behavior as TC-9.1 | | Not Yet Tested | |
+| TC-9.1 | Logout terminates session | Click "Log out" on dashboard | Redirected to `login.html`, session cleared | `supabase.auth.signOut()` called, token removed from `localStorage`, redirected to `login.html` | **Verified** | Browser session cleared |
+| TC-9.2 | Post-logout access blocked | After logout, navigate directly to `dashboard.html` URL | Redirected to `login.html` (requireAuth blocks it) | `requireAuth()` detects null session, automatically redirects to `login.html` | **Verified** | Route guard redirect |
+| TC-9.3 | Logout available on admin page too | Log in as Admin, click "Log out" | Same behavior as TC-9.1 | Admin session destroyed, redirected to `login.html` | **Verified** | Admin Header logout button |
 
 ## Evidence to capture for FYP2 report
 
