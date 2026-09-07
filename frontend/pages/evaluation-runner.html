@@ -141,14 +141,13 @@ const studentProfiles = [
 ];
 
 function computeMatchScore(student, job) {
-  const reqTech = job.req_tech || [];
-  const s_req = reqTech.length === 0 ? 1.0 : reqTech.filter(sk => student.skills.includes(sk)).length / reqTech.length;
-  const prefTech = job.pref_tech || [];
-  const s_pref = prefTech.length === 0 ? 1.0 : prefTech.filter(sk => student.skills.includes(sk)).length / prefTech.length;
-  const soft = job.soft || [];
-  const s_soft = soft.length === 0 ? 1.0 : soft.filter(sk => student.skills.includes(sk)).length / soft.length;
+  const reqSkills = job.req_tech || [];
+  const prefSkills = [...(job.pref_tech || []), ...(job.soft || [])];
 
-  let s_field = 0.2;
+  const s_req = reqSkills.length === 0 ? 1.0 : reqSkills.filter(sk => student.skills.includes(sk)).length / reqSkills.length;
+  const s_pref = prefSkills.length === 0 ? 0.0 : prefSkills.filter(sk => student.skills.includes(sk)).length / prefSkills.length;
+
+  let s_field = 0.0;
   const ind = job.industry.toLowerCase();
   const uf = student.field.toLowerCase();
   if (ind.includes(uf) || uf.includes(ind) ||
@@ -158,13 +157,13 @@ function computeMatchScore(student, job) {
     s_field = 1.0;
   }
 
-  let s_interest = 0.3;
+  let s_interest = 0.0;
   const userInterests = student.interests.toLowerCase();
   if (job.keywords.some(kw => userInterests.includes(kw)) || job.title.toLowerCase().includes(userInterests)) {
     s_interest = 1.0;
   }
 
-  const score = ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_soft) + (0.10 * s_field) + (0.05 * s_interest)) * 100;
+  const score = ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_field) + (0.15 * s_interest)) * 100;
   return Math.round(score * 100) / 100;
 }
 

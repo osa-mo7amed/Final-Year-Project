@@ -1,8 +1,12 @@
 -- ============================================================================
 -- 006_recommendation_rpc.sql: Explainable Recommendation Engine Functions
 -- Implements FR-4 (Job Recommendations) & FR-5 (Skill Gap Analysis)
--- Formula: MatchScore = (0.50 * ReqTech) + (0.20 * PrefTech) + (0.15 * Soft)
---                     + (0.10 * FieldMatch) + (0.05 * InterestMatch)
+-- Formula per Project Instructions (v2) & docs/report-addendum.md §3:
+-- MatchScore = (0.50 * RequiredSkillCoverage)
+--            + (0.20 * PreferredSkillCoverage)
+--            + (0.15 * FieldOfStudyAlignment)
+--            + (0.15 * CareerInterestAlignment)
+-- Scaled to 0–100. Transparent, reproducible, rule-based (not ML).
 -- ============================================================================
 
 create or replace function public.calculate_recommendations_for_user(p_user_id uuid)
@@ -56,12 +60,10 @@ begin
       jp.location as j_loc,
       jp.industry as j_ind,
       jp.deadline as j_deadline,
-      -- Required technical skills
-      coalesce(array_agg(s.skill_id) filter (where s.category = 'Technical' and js.is_required = true), '{}') as req_tech_ids,
-      -- Preferred technical skills
-      coalesce(array_agg(s.skill_id) filter (where s.category = 'Technical' and js.is_required = false), '{}') as pref_tech_ids,
-      -- Soft skills
-      coalesce(array_agg(s.skill_id) filter (where s.category = 'Soft'), '{}') as soft_ids,
+      -- Required skills (is_required = true)
+      coalesce(array_agg(s.skill_id) filter (where js.is_required = true), '{}') as req_skill_ids,
+      -- Preferred skills (is_required = false)
+      coalesce(array_agg(s.skill_id) filter (where js.is_required = false), '{}') as pref_skill_ids,
       -- All skills for this job
       coalesce(
         jsonb_agg(
@@ -91,55 +93,45 @@ begin
       jsb.j_ind,
       jsb.j_deadline,
       jsb.all_job_skills,
-      -- Math calculations
-      -- 1. Required Tech Coverage
+      -- Math calculations per report-addendum.md §3.2
+      -- 1. RequiredSkillCoverage: (matched required skills) / (total required skills)
       case
-        when cardinality(jsb.req_tech_ids) = 0 then 1.0
+        when cardinality(jsb.req_skill_ids) = 0 then 1.0
         else (
-          select count(*)::numeric / cardinality(jsb.req_tech_ids)::numeric
-          from unnest(jsb.req_tech_ids) x
+          select count(*)::numeric / cardinality(jsb.req_skill_ids)::numeric
+          from unnest(jsb.req_skill_ids) x
           where x = any(v_user_skill_ids)
         )
-      end as s_req_tech,
+      end as s_req,
 
-      -- 2. Preferred Tech Coverage
+      -- 2. PreferredSkillCoverage: (matched preferred skills) / (total preferred skills)
       case
-        when cardinality(jsb.pref_tech_ids) = 0 then 1.0
+        when cardinality(jsb.pref_skill_ids) = 0 then 0.0
         else (
-          select count(*)::numeric / cardinality(jsb.pref_tech_ids)::numeric
-          from unnest(jsb.pref_tech_ids) x
+          select count(*)::numeric / cardinality(jsb.pref_skill_ids)::numeric
+          from unnest(jsb.pref_skill_ids) x
           where x = any(v_user_skill_ids)
         )
-      end as s_pref_tech,
+      end as s_pref,
 
-      -- 3. Soft Skills Coverage
+      -- 3. FieldOfStudyAlignment: 1 if match, else 0
       case
-        when cardinality(jsb.soft_ids) = 0 then 1.0
-        else (
-          select count(*)::numeric / cardinality(jsb.soft_ids)::numeric
-          from unnest(jsb.soft_ids) x
-          where x = any(v_user_skill_ids)
-        )
-      end as s_soft,
-
-      -- 4. Field of Study Alignment
-      case
-        when v_user_field is null or v_user_field = '' then 0.5
-        when lower(jsb.j_ind) like '%' || lower(v_user_field) || '%'
-          or lower(v_user_field) like '%' || lower(jsb.j_ind) || '%'
-          or (lower(v_user_field) in ('computer science', 'software engineering', 'information technology') and lower(jsb.j_ind) in ('information technology', 'software', 'telecommunications', 'e-commerce & tech'))
-          or (lower(v_user_field) in ('electrical engineering', 'electrical power engineering') and lower(jsb.j_ind) in ('engineering & energy', 'telecommunications'))
+        when v_user_field is null or trim(v_user_field) = '' then 0.0
+        when lower(jsb.j_ind) like '%' || lower(trim(v_user_field)) || '%'
+          or lower(trim(v_user_field)) like '%' || lower(jsb.j_ind) || '%'
+          or (lower(trim(v_user_field)) in ('computer science', 'software engineering', 'information technology') and lower(jsb.j_ind) in ('information technology', 'software', 'telecommunications', 'e-commerce & tech'))
+          or (lower(trim(v_user_field)) in ('electrical engineering', 'electrical power engineering') and lower(jsb.j_ind) in ('engineering & energy', 'telecommunications'))
         then 1.0
-        else 0.2
+        else 0.0
       end as s_field,
 
-      -- 5. Career Interest Alignment
+      -- 4. CareerInterestAlignment: (matching interest tags) / (total interest tags)
       case
-        when v_user_interests = '' then 0.5
+        when v_user_interests = '' or trim(v_user_interests) = '' then 0.0
         when lower(jsb.j_title) ~* replace(trim(v_user_interests), ',', '|')
           or lower(jsb.j_desc) ~* replace(trim(v_user_interests), ',', '|')
         then 1.0
-        else 0.3
+        else 0.0
       end as s_interest
 
     from job_skill_breakdown jsb
@@ -156,17 +148,15 @@ begin
       sc.j_deadline,
       sc.all_job_skills,
       round(
-        ( (0.50 * sc.s_req_tech) +
-          (0.20 * sc.s_pref_tech) +
-          (0.15 * sc.s_soft) +
-          (0.10 * sc.s_field) +
-          (0.05 * sc.s_interest)
+        ( (0.50 * sc.s_req) +
+          (0.20 * sc.s_pref) +
+          (0.15 * sc.s_field) +
+          (0.15 * sc.s_interest)
         ) * 100.0,
         2
       ) as computed_score,
-      sc.s_req_tech,
-      sc.s_pref_tech,
-      sc.s_soft
+      sc.s_req,
+      sc.s_pref
     from scoring sc
   )
   select
@@ -208,11 +198,11 @@ begin
     -- Transparent Explanation
     case
       when fc.computed_score >= 80 then
-        'High match based on strong alignment with ' || round(fc.s_req_tech * 100) || '% of mandatory technical skills and relevant academic background.'
+        'High match based on strong alignment with ' || round(fc.s_req * 100) || '% of required skills and relevant background.'
       when fc.computed_score >= 60 then
-        'Moderate match. You meet ' || round(fc.s_req_tech * 100) || '% of core technical requirements. Closing identified skill gaps will improve your standing.'
+        'Moderate match. You meet ' || round(fc.s_req * 100) || '% of required skills. Closing identified skill gaps will improve your standing.'
       else
-        'Partial match. This role requires additional specialized competencies that are currently missing from your profile.'
+        'Partial match. This role requires additional competencies that are currently missing from your profile.'
     end as explanation
   from final_calc fc
   order by fc.computed_score desc, fc.j_deadline asc nulls last;

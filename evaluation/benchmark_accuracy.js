@@ -233,26 +233,23 @@ const studentProfiles = [
  * 3. RECOMMENDATION MATCHING ENGINE (Exact FYP Implementation Formula)
  */
 function computeMatchScore(student, job) {
-  // 1. Required tech skills
-  const reqTech = job.req_tech || [];
-  const s_req = reqTech.length === 0
-    ? 1.0
-    : reqTech.filter(sk => student.skills.includes(sk)).length / reqTech.length;
+  // Required skills
+  const reqSkills = job.req_tech || [];
+  // Preferred skills (preferred technical + soft)
+  const prefSkills = [...(job.pref_tech || []), ...(job.soft || [])];
 
-  // 2. Preferred tech skills
-  const prefTech = job.pref_tech || [];
-  const s_pref = prefTech.length === 0
+  // 1. RequiredSkillCoverage: (matched required) / (total required)
+  const s_req = reqSkills.length === 0
     ? 1.0
-    : prefTech.filter(sk => student.skills.includes(sk)).length / prefTech.length;
+    : reqSkills.filter(sk => student.skills.includes(sk)).length / reqSkills.length;
 
-  // 3. Soft skills
-  const soft = job.soft || [];
-  const s_soft = soft.length === 0
-    ? 1.0
-    : soft.filter(sk => student.skills.includes(sk)).length / soft.length;
+  // 2. PreferredSkillCoverage: (matched preferred) / (total preferred), 0 if none
+  const s_pref = prefSkills.length === 0
+    ? 0.0
+    : prefSkills.filter(sk => student.skills.includes(sk)).length / prefSkills.length;
 
-  // 4. Field of study alignment
-  let s_field = 0.2;
+  // 3. FieldOfStudyAlignment: 1 if match, else 0
+  let s_field = 0.0;
   const ind = job.industry.toLowerCase();
   const uf = student.field.toLowerCase();
   if (ind.includes(uf) || uf.includes(ind) ||
@@ -262,14 +259,14 @@ function computeMatchScore(student, job) {
     s_field = 1.0;
   }
 
-  // 5. Career interests
-  let s_interest = 0.3;
+  // 4. CareerInterestAlignment: 1 if match, else 0
+  let s_interest = 0.0;
   const userInterests = student.interests.toLowerCase();
   if (job.domain_keywords.some(kw => userInterests.includes(kw)) || job.title.toLowerCase().includes(userInterests)) {
     s_interest = 1.0;
   }
 
-  const score = ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_soft) + (0.10 * s_field) + (0.05 * s_interest)) * 100;
+  const score = ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_field) + (0.15 * s_interest)) * 100;
   return Math.round(score * 100) / 100;
 }
 

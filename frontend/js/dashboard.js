@@ -188,57 +188,50 @@ async function computeRecommendationsClientSide() {
 
   return jobs.map(job => {
     const jobSkills = job.job_skills || [];
-    const reqTechSkills = [];
-    const prefTechSkills = [];
-    const softSkills = [];
+    const reqSkills = [];
+    const prefSkills = [];
     const allSkills = [];
 
     jobSkills.forEach(js => {
       if (js.skills) {
         allSkills.push(js.skills);
-        if (js.skills.category === 'Technical') {
-          if (js.is_required) reqTechSkills.push(js.skills.skill_id);
-          else prefTechSkills.push(js.skills.skill_id);
+        if (js.is_required) {
+          reqSkills.push(js.skills.skill_id);
         } else {
-          softSkills.push(js.skills.skill_id);
+          prefSkills.push(js.skills.skill_id);
         }
       }
     });
 
-    // Sub-scores
-    const s_req = reqTechSkills.length === 0
+    // 1. RequiredSkillCoverage: (matched required) / (total required)
+    const s_req = reqSkills.length === 0
       ? 1.0
-      : reqTechSkills.filter(id => userSkillIds.includes(id)).length / reqTechSkills.length;
+      : reqSkills.filter(id => userSkillIds.includes(id)).length / reqSkills.length;
 
-    const s_pref = prefTechSkills.length === 0
-      ? 1.0
-      : prefTechSkills.filter(id => userSkillIds.includes(id)).length / prefTechSkills.length;
+    // 2. PreferredSkillCoverage: (matched preferred) / (total preferred), 0 if none
+    const s_pref = prefSkills.length === 0
+      ? 0.0
+      : prefSkills.filter(id => userSkillIds.includes(id)).length / prefSkills.length;
 
-    const s_soft = softSkills.length === 0
-      ? 1.0
-      : softSkills.filter(id => userSkillIds.includes(id)).length / softSkills.length;
-
-    // Field alignment
-    let s_field = 0.2;
-    const ind = (job.industry || '').toLowerCase();
-    const uf = userField.toLowerCase();
+    // 3. FieldOfStudyAlignment: 1 if match, else 0
+    let s_field = 0.0;
+    const ind = (job.industry || '').toLowerCase().trim();
+    const uf = userField.toLowerCase().trim();
     if (uf && (ind.includes(uf) || uf.includes(ind) ||
-        (['computer science', 'software engineering', 'information technology'].includes(uf) && ['information technology', 'software', 'telecommunications', 'e-commerce & tech'].includes(ind)))) {
+        (['computer science', 'software engineering', 'information technology'].includes(uf) && ['information technology', 'software', 'telecommunications', 'e-commerce & tech'].includes(ind)) ||
+        (['electrical engineering', 'electrical power engineering'].includes(uf) && ['engineering & energy', 'telecommunications'].includes(ind)))) {
       s_field = 1.0;
-    } else if (!uf) {
-      s_field = 0.5;
     }
 
-    // Career interest alignment
-    let s_interest = 0.3;
-    if (userInterests && (job.title.toLowerCase().includes(userInterests) || job.description.toLowerCase().includes(userInterests))) {
+    // 4. CareerInterestAlignment: 1 if match, else 0
+    let s_interest = 0.0;
+    const ui = userInterests.toLowerCase().trim();
+    if (ui && (job.title.toLowerCase().includes(ui) || (job.description && job.description.toLowerCase().includes(ui)))) {
       s_interest = 1.0;
-    } else if (!userInterests) {
-      s_interest = 0.5;
     }
 
     const totalScore = Math.round(
-      ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_soft) + (0.10 * s_field) + (0.05 * s_interest)) * 100
+      ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_field) + (0.15 * s_interest)) * 100
     );
 
     return {
