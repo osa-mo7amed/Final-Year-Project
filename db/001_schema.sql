@@ -163,22 +163,63 @@ create trigger trg_applications_updated_at before update on public.applications
   for each row execute function public.set_updated_at();
 
 -- ----------------------------------------------------------------------------
--- Auto-create public.users row when a new auth.users row is created
+-- Auto-create public.users and public.profiles row when a new auth.users row is created
 -- (keeps the 1:1 link intact automatically at registration)
+-- Uses explicit search_path, safe role casting, on-conflict handling, and exception trap.
 -- ----------------------------------------------------------------------------
 create or replace function public.handle_new_auth_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  v_role public.user_role := 'Student';
+  v_raw_role text;
 begin
+  -- Safely parse role enum, tolerating variations
+  v_raw_role := new.raw_user_meta_data->>'role';
+  if v_raw_role in ('Student', 'Graduate', 'Admin') then
+    v_role := v_raw_role::public.user_role;
+  elsif v_raw_role = 'Fresh Graduate' then
+    v_role := 'Graduate'::public.user_role;
+  end if;
+
+  -- 1. Insert or update public.users
   insert into public.users (id, full_name, role)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', 'Unnamed User'),
-    coalesce((new.raw_user_meta_data->>'role')::user_role, 'Student')
-  );
+    v_role
+  )
+  on conflict (id) do update
+    set full_name = excluded.full_name,
+        role = excluded.role,
+        updated_at = now();
+
+  -- 2. Auto-provision matching profile record
+  insert into public.profiles (user_id, field_of_study)
+  values (
+    new.id,
+    nullif(trim(coalesce(new.raw_user_meta_data->>'field_of_study', '')), '')
+  )
+  on conflict (user_id) do nothing;
+
+  return new;
+exception when others then
+  -- Prevent uncaught exceptions from failing the signup transaction
+  raise warning 'handle_new_auth_user error: %', sqlerrm;
   return new;
 end;
-$$ language plpgsql security definer;
+$$;
 
+drop trigger if exists trg_on_auth_user_created on auth.users;
 create trigger trg_on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_auth_user();
+
+-- Ensure proper grants
+grant usage on schema public to postgres, anon, authenticated, service_role;
+grant all on all tables in schema public to postgres, anon, authenticated, service_role;
+grant all on all sequences in schema public to postgres, anon, authenticated, service_role;
+grant all on all routines in schema public to postgres, anon, authenticated, service_role;
