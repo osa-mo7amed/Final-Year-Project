@@ -3,50 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InternMatch — Student & Fresh Graduate Job Matching System</title>
+  <title>InternMatch — Student & Fresh Graduate Internship Matching Platform</title>
   <link rel="stylesheet" href="frontend/css/styles.css" />
   <style>
     .landing-hero-section {
-      min-height: 75vh;
+      min-height: 80vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 60px 24px;
-      background: radial-gradient(circle at top center, #1b283d 0%, #0d1117 70%);
+      padding: 84px 24px 72px 24px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 15%, rgba(99, 102, 241, 0.20) 0%, rgba(16, 185, 129, 0.05) 45%, var(--im-canvas) 85%);
+    }
+
+    /* Ambient decorative grid */
+    .landing-hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 75%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 75%);
+      pointer-events: none;
     }
 
     .academic-pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      background: rgba(37, 99, 235, 0.12);
-      border: 1px solid rgba(37, 99, 235, 0.3);
+      gap: 10px;
+      padding: 7px 18px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.35);
       border-radius: var(--radius-full);
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #38bdf8;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 24px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 14px rgba(99, 102, 241, 0.18);
+      position: relative;
+      z-index: 1;
+    }
+
+    .academic-pill .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--im-match);
+      box-shadow: 0 0 8px var(--im-match);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.85); }
     }
 
     .hero-h1 {
-      font-size: clamp(34px, 5.5vw, 56px);
-      line-height: 1.1;
-      margin-bottom: 18px;
-      color: #fff;
-      max-width: 820px;
+      font-family: var(--font-display);
+      font-size: clamp(38px, 6vw, 62px);
+      line-height: 1.12;
+      margin-bottom: 22px;
+      color: #ffffff;
+      max-width: 860px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-h1 .gradient-text {
+      background: linear-gradient(135deg, #a5b4fc 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .hero-p {
-      font-size: clamp(16px, 2vw, 18px);
-      color: #94a3b8;
-      max-width: 680px;
-      line-height: 1.6;
-      margin-bottom: 32px;
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--im-text-muted);
+      max-width: 700px;
+      line-height: 1.65;
+      margin-bottom: 36px;
+      position: relative;
+      z-index: 1;
     }
 
     .hero-btn-group {
@@ -54,112 +101,190 @@
       gap: 16px;
       justify-content: center;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Live Interactive Career Snapshot in Hero */
+    .hero-snapshot {
+      margin-top: 48px;
+      background: rgba(20, 28, 45, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--im-border);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-lg);
+      padding: 16px 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+      max-width: 680px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .snapshot-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
     }
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      max-width: 1100px;
-      margin: -40px auto 60px auto;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 26px;
+      max-width: 1140px;
+      margin: -24px auto 70px auto;
       padding: 0 24px;
+      position: relative;
+      z-index: 2;
     }
 
     .feature-card {
-      background: #161e2b;
-      border: 1px solid #233144;
-      border-radius: var(--radius-md);
-      padding: 28px 24px;
+      background: var(--im-surface);
+      border: 1px solid var(--im-border);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
       box-shadow: var(--shadow-md);
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
     }
+
     .feature-card:hover {
-      transform: translateY(-4px);
-      border-color: #3b82f6;
+      transform: translateY(-5px);
+      border-color: #3e5275;
+      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.15);
     }
 
     .feature-icon-box {
-      width: 42px;
-      height: 42px;
-      border-radius: 8px;
-      background: rgba(6, 182, 212, 0.12);
-      border: 1px solid rgba(6, 182, 212, 0.3);
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
-      margin-bottom: 16px;
-      color: #38bdf8;
+      font-size: 1.35rem;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .feature-icon-box.icon-match {
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+    }
+
+    .feature-icon-box.icon-gap {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+    }
+
+    .feature-icon-box.icon-transparent {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Navbar -->
-  <header class="main-header" style="background: transparent; border-bottom: 1px solid rgba(255,255,255,0.08);">
+  <!-- Top Academic Navbar -->
+  <header class="main-header" style="background: rgba(12, 18, 30, 0.85); border-bottom: 1px solid var(--im-border);">
     <div class="brand-logo" style="border: none; padding: 0;">
       <span class="badge-logo">IM</span>
       <span>InternMatch</span>
     </div>
-    <div style="display: flex; gap: 12px;">
-      <a href="frontend/pages/login.html" class="btn btn-outline" style="width: auto; padding: 8px 20px;">Sign In</a>
-      <a href="frontend/pages/register.html" class="btn btn-primary" style="width: auto; padding: 8px 20px;">Get Started →</a>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <a href="frontend/pages/login.html" class="btn btn-outline" style="width: auto; padding: 9px 20px;">Sign In</a>
+      <a href="frontend/pages/register.html" class="btn btn-primary" style="width: auto; padding: 9px 22px;">Get Started →</a>
     </div>
   </header>
 
-  <!-- Hero Section (Figure 4.2) -->
+  <!-- Hero Section -->
   <section class="landing-hero-section">
     <div class="academic-pill">
+      <span class="pulse-dot"></span>
       Universiti Tenaga Nasional · FYP SW01084153
     </div>
 
     <h1 class="hero-h1">
-      Match Your Skills.<br />Land Your Internship.
+      Match Your Skills.<br />
+      <span class="gradient-text">Land Your Internship.</span>
     </h1>
 
     <p class="hero-p">
-      InternMatch analyses your academic profile, maps your skills to real opportunities, and shows you exactly what you're missing — so you can close the gap and get hired.
+      InternMatch analyses your academic profile, maps your strengths to active industry opportunities, and pinpoints exact skill gaps — with structured guidance to bridge them before you apply.
     </p>
 
     <div class="hero-btn-group">
-      <a href="frontend/pages/register.html" class="btn btn-primary" style="width: auto; padding: 14px 32px; font-size: 1rem;">Get Started →</a>
-      <a href="frontend/pages/login.html" class="btn btn-outline" style="width: auto; padding: 14px 32px; font-size: 1rem;">Sign In</a>
+      <a href="frontend/pages/register.html" class="btn btn-primary" style="width: auto; padding: 14px 34px; font-size: 1rem; border-radius: var(--radius-sm);">Create Student Account →</a>
+      <a href="frontend/pages/login.html" class="btn btn-outline" style="width: auto; padding: 14px 28px; font-size: 1rem; border-radius: var(--radius-sm);">Sign In</a>
+    </div>
+
+    <!-- Live Preview Snapshot -->
+    <div class="hero-snapshot">
+      <div class="snapshot-badge" style="color: var(--im-text-main);">
+        <span style="font-size: 1.1rem;">🎓</span>
+        <span>Software Engineering Student</span>
+      </div>
+      <span style="color: var(--im-border);">|</span>
+      <div class="snapshot-badge" style="color: var(--im-match-text);">
+        <span>✓ 4 Skills Matched</span>
+      </div>
+      <span style="color: var(--im-border);">|</span>
+      <div class="snapshot-badge" style="color: var(--im-gap-text);">
+        <span>⚡ 1 Gap Identified</span>
+      </div>
+      <span style="color: var(--im-border);">|</span>
+      <div class="score-badge tier-high" style="font-size: 0.85rem; padding: 4px 12px;">
+        92% Match Score
+      </div>
     </div>
   </section>
 
-  <!-- 3 Feature Pillars (Figure 4.2) -->
+  <!-- 3 Purpose-Driven Feature Pillars -->
   <section class="features-grid">
     <!-- Feature 1 -->
     <div class="feature-card">
-      <div class="feature-icon-box">🛡️</div>
-      <h3 style="margin-bottom: 10px; font-size: 1.15rem;">Personalised Matching</h3>
-      <p style="line-height: 1.6;">
-        Profile-based ranking that surfaces internships and entry-level roles aligned with your academic background, skills, and career interests.
+      <div class="feature-icon-box icon-match">🎯</div>
+      <h3 style="margin-bottom: 12px; font-size: 1.25rem;">Personalised Placement Ranking</h3>
+      <p style="line-height: 1.65; color: var(--im-text-muted);">
+        Surfaces internships and entry-level roles ranked mathematically against your academic discipline, acquired technical competencies, and declared career interests.
       </p>
     </div>
 
     <!-- Feature 2 -->
     <div class="feature-card">
-      <div class="feature-icon-box">📊</div>
-      <h3 style="margin-bottom: 10px; font-size: 1.15rem;">Skill Gap Analysis</h3>
-      <p style="line-height: 1.6;">
-        See exactly which skills you have, which you're missing, and receive structured improvement suggestions for each identified gap.
+      <div class="feature-icon-box icon-gap">📈</div>
+      <h3 style="margin-bottom: 12px; font-size: 1.25rem;">Actionable Gap Analysis</h3>
+      <p style="line-height: 1.65; color: var(--im-text-muted);">
+        Stop guessing why applications get ignored. Directly inspect your matched competencies versus missing skills, paired with concrete learning timelines and practice tasks.
       </p>
     </div>
 
     <!-- Feature 3 -->
     <div class="feature-card">
-      <div class="feature-icon-box">💡</div>
-      <h3 style="margin-bottom: 10px; font-size: 1.15rem;">Explainable Results</h3>
-      <p style="line-height: 1.6;">
-        Every recommendation comes with a transparent match score and a clear explanation of why that role was suggested for your profile.
+      <div class="feature-icon-box icon-transparent">💡</div>
+      <h3 style="margin-bottom: 12px; font-size: 1.25rem;">Explainable Match Metrics</h3>
+      <p style="line-height: 1.65; color: var(--im-text-muted);">
+        Transparent compatibility formulas break down required skill coverage (50%), preferred skills (20%), field of study (15%), and career goals (15%). No opaque black boxes.
       </p>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer style="text-align: center; padding: 40px 24px; border-top: 1px solid var(--line); color: var(--text-dim); font-size: 0.85rem;">
-    InternMatch &copy; 2026 Osama Mohammed Ali Abdaslam. College of Computing and Informatics, UNITEN.
+  <footer style="text-align: center; padding: 44px 24px; border-top: 1px solid var(--im-border); color: var(--im-text-dim); font-size: 0.86rem; background-color: var(--im-canvas);">
+    InternMatch &copy; 2026 Osama Mohammed Ali Abdaslam · Final Year Project SW01084153 · College of Computing and Informatics, Universiti Tenaga Nasional (UNITEN).
   </footer>
 
 </body>

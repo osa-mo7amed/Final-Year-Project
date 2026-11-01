@@ -24,15 +24,20 @@
     <div class="sidebar-user">
       <div class="user-name" id="sidebar-user-name">Loading...</div>
       <div class="user-id" id="sidebar-user-role">Student</div>
-      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 6px;">Sign Out</button>
+      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 7px;">Sign Out</button>
     </div>
   </aside>
 
   <!-- Main Content -->
   <main class="app-main">
     <header class="main-header">
-      <h2>Job Recommendations</h2>
-      <span style="font-size: 0.85rem; color: var(--text-muted);">Updated just now</span>
+      <div>
+        <h2>Job Recommendations</h2>
+        <span style="font-size: 0.82rem; color: var(--im-text-dim);">Personalised matching ranked for your academic profile</span>
+      </div>
+      <div style="font-size: 0.82rem; color: var(--im-text-muted); background: var(--im-surface); padding: 6px 12px; border-radius: var(--radius-full); border: 1px solid var(--im-border);">
+        Live Evaluation Active
+      </div>
     </header>
 
     <div class="main-content">
@@ -41,7 +46,10 @@
       <!-- Profile Strength Card (Figure 4.5) -->
       <div class="strength-card" id="profile-strength-banner">
         <div class="strength-header">
-          <span class="strength-label">Profile Strength</span>
+          <div class="strength-label">
+            <span>⚡</span>
+            <span>Profile Readiness Score</span>
+          </div>
           <span class="strength-value" id="strength-val">Loading…</span>
         </div>
         <div class="strength-bar-bg">
@@ -53,15 +61,16 @@
       </div>
 
       <!-- Incomplete Profile Warning (if applicable) -->
-      <div id="incomplete-profile-box" class="card" style="display: none; border-color: var(--amber); background-color: rgba(245, 158, 11, 0.05);">
-        <h3 style="color: var(--amber); margin-bottom: 8px;">⚠️ Build Your Profile to Unlock Recommendations</h3>
-        <p style="margin-bottom: 16px;">You haven't added any skills or academic details yet. InternMatch requires your profile to calculate accurate, explainable compatibility scores.</p>
+      <div id="incomplete-profile-box" class="card" style="display: none; border-left: 4px solid var(--im-gap); background-color: rgba(245, 158, 11, 0.05); padding: 24px;">
+        <h3 style="color: var(--im-gap-text); margin-bottom: 8px; font-size: 1.15rem;">⚠️ Build Your Profile to Unlock Recommendations</h3>
+        <p style="margin-bottom: 18px; color: var(--im-text-muted);">You haven't added any skills or academic details yet. InternMatch requires your profile to calculate accurate, explainable compatibility scores.</p>
         <a href="profile.html" class="btn btn-primary" style="width: auto;">Complete Profile Now →</a>
       </div>
 
       <!-- Recommendations Feed -->
       <div id="recommendations-container">
-        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+        <div style="text-align: center; padding: 50px 20px; color: var(--im-text-muted); background: var(--im-surface); border: 1px dashed var(--im-border); border-radius: var(--radius-md);">
+          <div style="font-size: 1.5rem; margin-bottom: 10px;">⚙️</div>
           Calculating personalized recommendations based on your profile…
         </div>
       </div>
@@ -73,28 +82,28 @@
 <!-- Job Details Modal -->
 <div class="modal-overlay" id="job-modal">
   <div class="modal-box">
-    <div class="card-header" style="margin-bottom: 12px;">
-      <h3 id="modal-job-title">Job Title</h3>
-      <button class="btn btn-outline" id="close-modal-btn" style="padding: 4px 10px; font-size: 0.8rem;">✕ Close</button>
+    <div class="card-header" style="margin-bottom: 14px; padding-bottom: 14px;">
+      <h3 id="modal-job-title" style="font-size: 1.3rem;">Job Title</h3>
+      <button class="btn btn-outline" id="close-modal-btn" style="padding: 5px 12px; font-size: 0.8rem;">✕ Close</button>
     </div>
-    <div id="modal-company" style="color: #38bdf8; font-weight: 600; font-size: 0.95rem; margin-bottom: 16px;">Company</div>
+    <div id="modal-company" style="color: #a5b4fc; font-family: var(--font-display); font-weight: 600; font-size: 1rem; margin-bottom: 16px;">Company</div>
     
-    <div class="job-meta-row" id="modal-meta">
+    <div class="job-meta-row" id="modal-meta" style="margin-bottom: 20px;">
       <!-- Meta details -->
     </div>
 
-    <div style="margin-bottom: 18px;">
-      <h4 style="margin-bottom: 8px; color: var(--text-muted);">Role Overview & Responsibilities</h4>
-      <p id="modal-desc" style="line-height: 1.6; font-size: 0.9rem;"></p>
+    <div style="margin-bottom: 22px;">
+      <h4 style="margin-bottom: 8px; color: var(--im-text-muted); font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em;">Role Overview & Responsibilities</h4>
+      <p id="modal-desc" style="line-height: 1.65; font-size: 0.92rem; color: #cbd5e1;"></p>
     </div>
 
-    <div style="margin-bottom: 18px;">
-      <h4 style="margin-bottom: 8px; color: var(--text-muted);">Required & Preferred Skills</h4>
+    <div style="margin-bottom: 24px;">
+      <h4 style="margin-bottom: 8px; color: var(--im-text-muted); font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em;">Required & Preferred Skills</h4>
       <div class="tag-container" id="modal-skills"></div>
     </div>
 
-    <div style="display: flex; gap: 12px; margin-top: 24px;">
-      <a href="#" id="modal-analysis-link" class="btn btn-secondary" style="flex: 1;">Detailed Skill Analysis</a>
+    <div style="display: flex; gap: 12px; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--im-border);">
+      <a href="#" id="modal-analysis-link" class="btn btn-secondary" style="flex: 1;">Detailed Skill Analysis →</a>
       <button id="modal-apply-btn" class="btn btn-primary" style="flex: 1;">Apply to Position</button>
     </div>
   </div>

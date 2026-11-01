@@ -24,19 +24,22 @@
     <div class="sidebar-user">
       <div class="user-name" id="sidebar-user-name">Loading...</div>
       <div class="user-id" id="sidebar-user-role">Student</div>
-      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 6px;">Sign Out</button>
+      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 7px;">Sign Out</button>
     </div>
   </aside>
 
   <!-- Main Content -->
   <main class="app-main">
     <header class="main-header">
-      <h2>Manage Profile</h2>
+      <div>
+        <h2>Manage Profile</h2>
+        <span style="font-size: 0.82rem; color: var(--im-text-dim);">Academic background, verified competencies, and career goals</span>
+      </div>
       <div style="display: flex; align-items: center; gap: 16px;">
-        <span id="header-strength-badge" style="font-size: 0.9rem; font-weight: 700; color: var(--matched);">
-          • Profile Strength: <span id="header-strength-val">0%</span>
+        <span id="header-strength-badge" style="font-size: 0.88rem; font-weight: 700; color: var(--im-match-text); background: rgba(16, 185, 129, 0.1); padding: 5px 12px; border-radius: var(--radius-full); border: 1px solid var(--im-match-line);">
+          • Completeness: <span id="header-strength-val" style="font-family: var(--font-mono);">0%</span>
         </span>
-        <button id="save-profile-btn" class="btn btn-primary">Save Changes</button>
+        <button id="save-profile-btn" class="btn btn-primary" style="padding: 9px 22px;">Save Changes</button>
       </div>
     </header>
 
@@ -46,7 +49,10 @@
       <!-- Profile Strength Card -->
       <div class="strength-card">
         <div class="strength-header">
-          <span class="strength-label">Profile Completeness</span>
+          <div class="strength-label">
+            <span>🎓</span>
+            <span>Profile Readiness & Recommendation Precision</span>
+          </div>
           <span class="strength-value" id="strength-display-val">0%</span>
         </div>
         <div class="strength-bar-bg">
@@ -59,19 +65,20 @@
       <div class="card">
         <div class="card-header">
           <h3>Academic Background</h3>
+          <span style="font-size: 0.82rem; color: var(--im-text-dim);">UNITEN Degree Program Information</span>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
           <div class="form-group">
-            <label class="form-label" for="institution">Institution</label>
+            <label class="form-label" for="institution">Institution / University</label>
             <input type="text" id="institution" class="form-control" placeholder="e.g. Universiti Tenaga Nasional" />
           </div>
           <div class="form-group">
-            <label class="form-label" for="programme">Programme</label>
+            <label class="form-label" for="programme">Programme Name</label>
             <input type="text" id="programme" class="form-control" placeholder="e.g. Bachelor of Software Engineering" />
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;">
           <div class="form-group">
             <label class="form-label" for="fieldOfStudy">Field of Study</label>
             <input type="text" id="fieldOfStudy" class="form-control" placeholder="e.g. Software Engineering" />
@@ -88,7 +95,7 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="cgpa">CGPA (0.00 - 4.00)</label>
-            <input type="number" id="cgpa" class="form-control" step="0.01" min="0" max="4.00" placeholder="e.g. 3.67" />
+            <input type="number" id="cgpa" class="form-control" step="0.01" min="0" max="4.00" placeholder="e.g. 3.67" style="font-family: var(--font-mono);" />
           </div>
         </div>
       </div>
@@ -96,48 +103,55 @@
       <!-- Card: Technical Skills -->
       <div class="card">
         <div class="card-header">
-          <h3>Technical Skills</h3>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">Minimum 3 recommended for accurate matching</span>
+          <div>
+            <h3>Technical Skills</h3>
+            <p style="font-size: 0.82rem; color: var(--im-text-dim); margin-top: 2px;">Languages, frameworks, databases, and developer tooling</p>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--im-match-text); background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: var(--radius-full); border: 1px solid var(--im-match-line);">
+            Min. 3 recommended for high match score
+          </span>
         </div>
         <div class="tag-container" id="tech-skills-container">
           <!-- Populated dynamically -->
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 12px;">
-          <select id="tech-skill-select" class="form-control" style="max-width: 320px;">
+        <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+          <select id="tech-skill-select" class="form-control" style="max-width: 340px;">
             <option value="" disabled selected>Select a technical skill...</option>
           </select>
-          <button id="add-tech-skill-btn" class="btn btn-secondary">+ Add Skill</button>
+          <button id="add-tech-skill-btn" class="btn btn-secondary">+ Add Technical Skill</button>
         </div>
       </div>
 
       <!-- Card: Soft Skills -->
       <div class="card">
         <div class="card-header">
-          <h3>Soft Skills</h3>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">Communication, problem solving, teamwork, etc.</span>
+          <div>
+            <h3>Soft & Professional Skills</h3>
+            <p style="font-size: 0.82rem; color: var(--im-text-dim); margin-top: 2px;">Interpersonal communication, leadership, and problem-solving abilities</p>
+          </div>
         </div>
         <div class="tag-container" id="soft-skills-container">
           <!-- Populated dynamically -->
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 12px;">
-          <select id="soft-skill-select" class="form-control" style="max-width: 320px;">
+        <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+          <select id="soft-skill-select" class="form-control" style="max-width: 340px;">
             <option value="" disabled selected>Select a soft skill...</option>
           </select>
-          <button id="add-soft-skill-btn" class="btn btn-secondary">+ Add Skill</button>
+          <button id="add-soft-skill-btn" class="btn btn-secondary">+ Add Soft Skill</button>
         </div>
       </div>
 
       <!-- Card: Career Interests & Certifications -->
       <div class="card">
         <div class="card-header">
-          <h3>Career Interests & Certifications</h3>
+          <h3>Career Interests & Professional Certifications</h3>
         </div>
         <div class="form-group">
-          <label class="form-label" for="careerInterests">Career Interests (comma-separated)</label>
+          <label class="form-label" for="careerInterests">Target Career Specializations (comma-separated)</label>
           <input type="text" id="careerInterests" class="form-control" placeholder="e.g. Web Development, Cloud Engineering, Software Architecture" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="certifications">Professional Certifications</label>
+          <label class="form-label" for="certifications">Professional Certifications & Micro-Credentials</label>
           <input type="text" id="certifications" class="form-control" placeholder="e.g. AWS Certified Cloud Practitioner, Cisco CCNA" />
         </div>
       </div>

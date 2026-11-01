@@ -11,29 +11,37 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 32px 20px;
-      background: radial-gradient(circle at top center, #1b283d 0%, #0d1117 75%);
+      padding: 40px 20px;
+      background: radial-gradient(circle at 50% 15%, rgba(99, 102, 241, 0.18) 0%, rgba(16, 185, 129, 0.04) 40%, var(--im-canvas) 80%);
+      position: relative;
     }
+
     .auth-card {
-      background-color: var(--bg-card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      padding: 36px 32px;
-      max-width: 520px;
+      background-color: var(--im-surface);
+      border: 1px solid var(--im-border);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: 40px 36px;
+      max-width: 540px;
       width: 100%;
       box-shadow: var(--shadow-lg);
+      position: relative;
+      z-index: 1;
     }
+
     .auth-brand-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: linear-gradient(135deg, #2563eb, #06b6d4);
-      color: #fff;
-      padding: 4px 10px;
+      gap: 8px;
+      background: linear-gradient(135deg, #6366f1 0%, #10b981 100%);
+      color: #ffffff;
+      padding: 6px 12px;
       border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
       font-weight: 800;
-      font-size: 0.9rem;
-      margin-bottom: 18px;
+      font-size: 0.92rem;
+      margin-bottom: 22px;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
     }
   </style>
 </head>
@@ -41,10 +49,10 @@
 
 <div class="auth-wrapper">
   <div class="auth-card">
-    <div class="auth-brand-badge">IM</div>
-    <h2>Create your account</h2>
-    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; margin-bottom: 24px;">
-      Start matching with the right opportunities
+    <div class="auth-brand-badge">IM · InternMatch</div>
+    <h2 style="font-size: 1.65rem;">Create student account</h2>
+    <p style="color: var(--im-text-muted); font-size: 0.92rem; margin-top: 6px; margin-bottom: 26px;">
+      Start matching with curated internship & job opportunities
     </p>
 
     <div id="form-alert" class="alert-toast"></div>
@@ -56,11 +64,11 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="email">Email address *</label>
+        <label class="form-label" for="email">Student / University email address *</label>
         <input type="email" id="email" name="email" class="form-control" placeholder="e.g. osama@student.uniten.edu.my" required />
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div class="form-group">
           <label class="form-label" for="password">Password *</label>
           <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required />
@@ -71,7 +79,7 @@
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div class="form-group">
           <label class="form-label" for="fieldOfStudy">Field of study</label>
           <input type="text" id="fieldOfStudy" name="fieldOfStudy" class="form-control" placeholder="e.g. Software Engineering" />
@@ -80,17 +88,17 @@
           <label class="form-label" for="academicStatus">Academic status *</label>
           <select id="academicStatus" name="academicStatus" class="form-control" required>
             <option value="" selected disabled>Select your status</option>
-            <option value="Student">Currently Enrolled</option>
+            <option value="Student">Currently Enrolled Student</option>
             <option value="Graduate">Fresh Graduate</option>
           </select>
         </div>
       </div>
 
-      <button type="submit" id="submit-btn" class="btn btn-primary" style="margin-top: 10px;">Create Account →</button>
+      <button type="submit" id="submit-btn" class="btn btn-primary" style="margin-top: 14px; width: 100%; padding: 12px; font-size: 0.95rem;">Create Account →</button>
     </form>
 
-    <div style="text-align: center; margin-top: 24px; font-size: 0.88rem; color: var(--text-muted);">
-      Already have an account? <a href="login.html" style="font-weight: 600; color: #38bdf8;">Sign in</a>
+    <div style="text-align: center; margin-top: 26px; font-size: 0.88rem; color: var(--im-text-muted);">
+      Already have an account? <a href="login.html" style="font-weight: 600; color: #a5b4fc;">Sign in</a>
     </div>
   </div>
 </div>

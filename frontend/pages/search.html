@@ -24,31 +24,36 @@
     <div class="sidebar-user">
       <div class="user-name" id="sidebar-user-name">Loading...</div>
       <div class="user-id" id="sidebar-user-role">Student</div>
-      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 6px;">Sign Out</button>
+      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 7px;">Sign Out</button>
     </div>
   </aside>
 
   <!-- Main Content -->
   <main class="app-main">
     <header class="main-header">
-      <h2>Search Jobs</h2>
-      <span id="available-count-badge" style="font-size: 0.85rem; color: var(--text-muted);">Loading listings…</span>
+      <div>
+        <h2>Search & Explore Listings</h2>
+        <span style="font-size: 0.82rem; color: var(--im-text-dim);">Browse active internships and entry-level positions</span>
+      </div>
+      <span id="available-count-badge" style="font-family: var(--font-mono); font-size: 0.84rem; color: #a5b4fc; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); padding: 5px 14px; border-radius: var(--radius-full);">
+        Loading listings…
+      </span>
     </header>
 
-    <div class="main-content" style="max-width: 1200px;">
+    <div class="main-content" style="max-width: 1240px;">
       <div id="search-alert" class="alert-toast"></div>
 
       <div class="search-layout">
         <!-- Filters Sidebar (Figure 4.8) -->
         <aside class="filters-panel">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">Filters</h3>
-            <button id="reset-filters-btn" class="btn btn-outline" style="padding: 2px 8px; font-size: 0.75rem;">Reset</button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--im-border);">
+            <div style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: var(--im-text-main);">Filters</div>
+            <button id="reset-filters-btn" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.78rem;">Reset</button>
           </div>
 
           <!-- Industry Filter -->
           <div class="filter-section">
-            <div class="filter-title">Industry</div>
+            <div class="filter-title">Industry Sector</div>
             <select id="industry-filter" class="form-control">
               <option value="">All Industries</option>
               <option value="Information Technology">Information Technology</option>
@@ -62,13 +67,13 @@
 
           <!-- Job Type Filter -->
           <div class="filter-section">
-            <div class="filter-title">Job Type</div>
+            <div class="filter-title">Placement Type</div>
             <div class="filter-checkbox-group">
               <label class="filter-checkbox-label">
                 <input type="checkbox" name="jobType" value="Internship" checked /> Internship
               </label>
               <label class="filter-checkbox-label">
-                <input type="checkbox" name="jobType" value="Full-Time" /> Full-Time
+                <input type="checkbox" name="jobType" value="Full-Time" /> Full-Time (Fresh Grad)
               </label>
               <label class="filter-checkbox-label">
                 <input type="checkbox" name="jobType" value="Part-Time" /> Part-Time
@@ -78,7 +83,7 @@
 
           <!-- Location Filter -->
           <div class="filter-section">
-            <div class="filter-title">Location</div>
+            <div class="filter-title">Location / Mode</div>
             <select id="location-filter" class="form-control">
               <option value="">All Locations</option>
               <option value="Kuala Lumpur">Kuala Lumpur</option>
@@ -91,21 +96,21 @@
 
           <!-- Required Skills Filter -->
           <div class="filter-section">
-            <div class="filter-title">Required Skills</div>
-            <div class="filter-checkbox-group" id="skills-filter-group" style="max-height: 180px; overflow-y: auto;">
+            <div class="filter-title">Filter by Required Skills</div>
+            <div class="filter-checkbox-group" id="skills-filter-group" style="max-height: 200px; overflow-y: auto; padding-right: 4px;">
               <!-- Populated dynamically with skill checkboxes -->
             </div>
           </div>
 
-          <button id="apply-filters-btn" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Apply Filters</button>
+          <button id="apply-filters-btn" class="btn btn-primary" style="width: 100%; margin-top: 14px; padding: 11px;">Apply Active Filters</button>
         </aside>
 
         <!-- Search Input & Results Feed -->
         <div>
           <!-- Search Bar -->
-          <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <input type="text" id="search-input" class="form-control" placeholder="Search job titles, companies, or keywords..." style="padding: 12px 16px;" />
-            <button id="search-btn" class="btn btn-primary" style="width: auto; padding: 12px 28px;">Search</button>
+          <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+            <input type="text" id="search-input" class="form-control" placeholder="Search by role title, hiring company, or keywords..." style="padding: 13px 18px; font-size: 0.95rem;" />
+            <button id="search-btn" class="btn btn-primary" style="width: auto; padding: 13px 30px; font-size: 0.95rem;">Search</button>
           </div>
 
           <!-- Results Container -->

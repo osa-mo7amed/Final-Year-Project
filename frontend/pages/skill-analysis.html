@@ -24,7 +24,7 @@
     <div class="sidebar-user">
       <div class="user-name" id="sidebar-user-name">Loading...</div>
       <div class="user-id" id="sidebar-user-role">Student</div>
-      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 6px;">Sign Out</button>
+      <button id="logout-btn" class="btn btn-outline" style="margin-top: 10px; width: 100%; font-size: 0.8rem; padding: 7px;">Sign Out</button>
     </div>
   </aside>
 
@@ -32,19 +32,19 @@
   <main class="app-main">
     <header class="main-header">
       <div>
-        <h2>Skill Alignment Analysis</h2>
-        <div id="header-job-subtitle" style="font-size: 0.85rem; color: #38bdf8;">Loading position…</div>
+        <h2>Skill Alignment & Gap Analysis</h2>
+        <div id="header-job-subtitle" style="font-size: 0.88rem; color: #a5b4fc; font-weight: 500; margin-top: 2px;">Loading position…</div>
       </div>
-      <button id="header-apply-btn" class="btn btn-primary">Apply Now</button>
+      <button id="header-apply-btn" class="btn btn-primary" style="padding: 9px 24px;">Apply to Role →</button>
     </header>
 
     <div class="main-content">
       <div id="analysis-alert" class="alert-toast"></div>
 
       <!-- Job Selector if opened directly without query param -->
-      <div id="job-select-banner" class="card" style="margin-bottom: 20px; display: none;">
-        <label class="form-label" for="job-selector">Select a Job Posting to Analyze:</label>
-        <select id="job-selector" class="form-control" style="margin-top: 6px;">
+      <div id="job-select-banner" class="card" style="margin-bottom: 24px; display: none;">
+        <label class="form-label" for="job-selector">Select a Job Posting to Inspect Alignment:</label>
+        <select id="job-selector" class="form-control" style="margin-top: 8px;">
           <option value="" disabled selected>Choose a job posting...</option>
         </select>
       </div>
@@ -55,43 +55,68 @@
           <div class="big-score-number" id="analysis-score-num">--%</div>
           <div class="big-score-label">Match Score</div>
         </div>
+
         <div class="analysis-summary-text" id="analysis-summary-text">
           Loading detailed skill alignment metrics against your profile…
         </div>
+
+        <!-- Academic Explainability Formula Bar -->
+        <div class="formula-breakdown-bar">
+          <span style="font-weight: 600; color: var(--im-text-muted);">Explainable Scoring Formula:</span>
+          <span class="formula-tag">50% Required Skills</span>
+          <span class="formula-tag">20% Preferred Skills</span>
+          <span class="formula-tag">15% Field of Study</span>
+          <span class="formula-tag">15% Career Interests</span>
+        </div>
       </div>
 
-      <!-- Dual Column Alignment Breakdown (Figure 4.7) -->
+      <!-- Split Comparison Board: What You Have vs. What You're Missing -->
       <div class="alignment-grid">
-        <!-- Left: Matched Skills -->
-        <div class="card">
-          <div class="card-header">
-            <h3 style="color: #4ade80; display: flex; align-items: center; gap: 8px;">
-              <span>•</span> Matched Skills <span id="matched-count-badge" style="font-size: 0.9rem; color: var(--text-muted);">(0)</span>
-            </h3>
+        <!-- Left: Matched Skills (Verified Strengths) -->
+        <div class="card alignment-column-card alignment-column-card--matched">
+          <div class="column-banner">
+            <div>
+              <h3 style="color: var(--im-match-text); display: flex; align-items: center; gap: 8px; font-size: 1.18rem;">
+                <span>✓</span> Verified Strengths <span id="matched-count-badge" style="font-family: var(--font-mono); font-size: 0.95rem; color: #a7f3d0;">(0)</span>
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--im-text-dim); margin-top: 2px;">Competencies already present in your student profile</p>
+            </div>
+            <span class="column-legend-pill legend-matched">You Possess</span>
           </div>
-          <div class="tag-container" id="matched-skills-list" style="flex-direction: column; gap: 10px;">
-            <!-- Populated with ✓ items -->
+
+          <div class="tag-container" id="matched-skills-list" style="flex-direction: column; gap: 10px; flex: 1;">
+            <!-- Populated dynamically with ✓ items -->
           </div>
         </div>
 
-        <!-- Right: Missing Skills (Gaps) -->
-        <div class="card">
-          <div class="card-header">
-            <h3 style="color: #f87171; display: flex; align-items: center; gap: 8px;">
-              <span>•</span> Missing Skills <span id="missing-count-badge" style="font-size: 0.9rem; color: var(--text-muted);">(0)</span>
-            </h3>
+        <!-- Right: Missing Skills (Opportunity Gaps) -->
+        <div class="card alignment-column-card alignment-column-card--missing">
+          <div class="column-banner">
+            <div>
+              <h3 style="color: var(--im-gap-text); display: flex; align-items: center; gap: 8px; font-size: 1.18rem;">
+                <span>⚡</span> Opportunity Gaps <span id="missing-count-badge" style="font-family: var(--font-mono); font-size: 0.95rem; color: #fde68a;">(0)</span>
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--im-text-dim); margin-top: 2px;">Required & preferred skills you can acquire</p>
+            </div>
+            <span class="column-legend-pill legend-missing">Bridgeable Gap</span>
           </div>
-          <div class="tag-container" id="missing-skills-list" style="flex-direction: column; gap: 10px;">
-            <!-- Populated with ✕ items -->
+
+          <div class="tag-container" id="missing-skills-list" style="flex-direction: column; gap: 10px; flex: 1;">
+            <!-- Populated dynamically with ✕ items -->
           </div>
         </div>
       </div>
 
-      <!-- Skill Improvement Suggestions (Figure 4.7) -->
-      <div class="card" style="border-left: 4px solid #38bdf8;">
+      <!-- Structured Skill Improvement Roadmaps (Figure 4.7) -->
+      <div class="card" style="border-left: 4px solid var(--im-gap); background: linear-gradient(180deg, #151e30 0%, var(--im-surface) 100%);">
         <div class="card-header">
-          <h3>Skill Improvement Suggestions</h3>
-          <span style="font-size: 0.82rem; color: var(--text-muted);">Actionable steps to close competency gaps</span>
+          <div>
+            <h3 style="font-size: 1.25rem;">Actionable Learning Roadmaps</h3>
+            <p style="font-size: 0.85rem; color: var(--im-text-muted); margin-top: 4px;">Structured learning pathways, recommended practice projects, and realistic durations to bridge identified gaps.</p>
+          </div>
+          <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--im-gap-text); background: rgba(245, 158, 11, 0.1); border: 1px solid var(--im-gap-line); padding: 4px 10px; border-radius: var(--radius-full);">
+            Step-by-Step Guidance
+          </span>
         </div>
         <div id="guidance-container">
           <!-- Populated dynamically with realistic learning pathways -->
@@ -99,12 +124,12 @@
       </div>
 
       <!-- Bottom Ready to Apply Banner -->
-      <div class="card" style="background: linear-gradient(135deg, #131b26, #1b263b); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div class="card" style="background: linear-gradient(135deg, #141c2d 0%, #1b253b 100%); border: 1px solid #2a3a52; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; padding: 28px 32px;">
         <div>
-          <h4 style="font-size: 1.05rem; margin-bottom: 4px;">Ready to apply?</h4>
-          <p id="bottom-deadline-text">Application deadline closing soon.</p>
+          <h4 style="font-size: 1.2rem; margin-bottom: 4px; color: #ffffff;">Ready to take the next step?</h4>
+          <p id="bottom-deadline-text" style="color: #94a3b8; font-size: 0.92rem;">Application deadline closing soon.</p>
         </div>
-        <button id="bottom-apply-btn" class="btn btn-primary" style="width: auto; padding: 12px 28px;">Apply Now</button>
+        <button id="bottom-apply-btn" class="btn btn-primary" style="width: auto; padding: 12px 32px; font-size: 0.95rem;">Submit Application →</button>
       </div>
 
     </div>
