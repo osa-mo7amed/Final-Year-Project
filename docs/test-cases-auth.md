@@ -1,59 +1,24 @@
-# Test Cases — Auth Module (FR-1, FR-2, FR-9)
+# Authentication and authorization cases
 
-Run these against your live Supabase project. Mark each as you go — do not
-mark "Verified" without actually performing the step.
+Prior “Verified” claims without retained evidence are superseded by `test-results.md`.
 
-## Setup (do this first)
+| Case | Action | Expected | Evidence/status |
+|---|---|---|---|
+| AUTH-01 | Signup metadata requests Admin | Provision Student; no elevated authority | Local DB and live rollback SQL |
+| AUTH-02 | Supply valid student/admin password | Correct role redirect | See live-auth/live-browser evidence when present |
+| AUTH-03 | Read another user's profile or recommendation RPC | No foreign rows / 403 | Local DB, live SQL and live REST |
+| AUTH-04 | PATCH own role or set metadata Admin | Direct update denied; metadata not authoritative | Local DB and live REST |
+| AUTH-05 | Deactivate synthetic user, reuse existing token | Protected operation denied | Local DB/live SQL/live REST |
+| AUTH-06 | Demote/deactivate own administrator | Rejected | Local DB and live SQL |
+| AUTH-07 | Logout and reuse token | Protected operation denied, protected page redirects | Live REST; browser evidence separately |
+| AUTH-08 | Anonymous SELECT/RPC | 401/403 | live-anonymous.json |
+| AUTH-09 | Missing user row, inactive account, no session | Frontend fails closed | frontend.test.cjs |
+| AUTH-10 | Register and verify email, duplicate email, recover password | Email arrives; valid link works; duplicate does not create account | Real inbox/service acceptance pending |
+| AUTH-11 | SQL caller without matching auth session | Denied | database.test.cjs |
 
-1. In Supabase dashboard → SQL Editor, run in order:
-   - `db/001_schema.sql`
-   - `db/002_rls_policies.sql`
-   - `db/003_seed_skills.sql`
-2. In Supabase dashboard → Authentication → Providers, confirm Email provider is enabled.
-3. In Supabase dashboard → Authentication → URL Configuration, note whether
-   "Confirm email" is required (affects TC-1.2 below).
-4. Open `index.html` via a local server (e.g. VS Code Live Server) — **do not
-   open via `file://`**, the Supabase JS client and fetch calls need http(s).
+Use synthetic accounts only. `tests/live-rollback.sql` leaves no rows; it simulates JWT claims and does not
+prove password authentication. Live API/browser scripts use real Auth tokens from separate test credentials.
 
-## FR-1: Register Account (Status: Verified)
+## Stage 2.2 update, 2026-11-14
 
-| Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
-|---|---|---|---|---|---|---|
-| TC-1.1 | Successful registration | Fill valid name/email/password/status, submit | Success message shown, redirected to login after ~2s | Success toast displayed; redirected to login.html | **Verified** | Registration UI toast |
-| TC-1.2 | Email verification | After TC-1.1, check inbox | Verification email received (if email confirmation enabled in Supabase) | Verification email received with confirmation link | **Verified** | Email inbox |
-| TC-1.3 | Duplicate email rejected | Register again with same email | Error: "This email is already registered..." | "This email is already registered. Please sign in instead." displayed | **Verified** | Red alert toast |
-| TC-1.4 | Password too short | Enter 5-char password | Client-side error before submit: "at least 8 characters" | Blocked client-side: "Password must be at least 8 characters in length." | **Verified** | Form validation |
-| TC-1.5 | Passwords don't match | Different password/confirm values | Error: "Passwords do not match" | Blocked client-side: "Passwords do not match." | **Verified** | Form validation |
-| TC-1.6 | Missing academic status | Leave dropdown unselected | Error: "Select your current academic status" | Blocked: "Please select your current academic status." | **Verified** | Form validation |
-| TC-1.7 | public.users auto-provisioned | After TC-1.1, check `public.users` table in Supabase | Row exists with correct full_name and role, id matches auth.users.id | Row auto-provisioned in public.users and public.profiles via trigger | **Verified** | Supabase Table Editor |
-| TC-1.8 | Malicious input (XSS attempt) | Enter `<script>alert(1)</script>` as full name | Rejected by form validation: "Full name cannot contain HTML or script characters (<, >)" (prevents stored XSS) | Input blocked by regex validation with error toast; sanitized in DB trigger | **Verified** | Form validation toast |
-
-## FR-2: Login (Status: Verified)
-
-| Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
-|---|---|---|---|---|---|---|
-| TC-2.1 | Successful login (Student) | Log in with verified Student account | Redirected to `dashboard.html`, name shown | Redirected to `dashboard.html`, student name and role loaded in sidebar | **Verified** | Student Dashboard |
-| TC-2.2 | Successful login (Admin) | Manually set a user's role to 'Admin' in Supabase, log in | Redirected to `admin-dashboard.html` | Redirected to `admin-dashboard.html` with RBAC verification badge ("Role-Based Access Control Verified: Administrator privileges active") | **Verified** | Admin dashboard banner / console log |
-| TC-2.3 | Wrong password | Correct email, wrong password | Generic error: "Incorrect email or password." (does not say which field) | Generic error displayed: "Incorrect email or password. Please verify your credentials and try again." | **Verified** | Red alert toast |
-| TC-2.4 | Non-existent email | Unregistered email | Same generic error as TC-2.3 (no field-specific leak) | Generic error displayed: "Incorrect email or password. Please verify your credentials and try again." | **Verified** | Red alert toast |
-| TC-2.5 | Deactivated account | Set `account_status = 'Inactive'` for a user, attempt login | Signed out immediately, error: "This account has been deactivated." | Signed out immediately, error displayed: "This account has been deactivated. Please contact the system administrator." | **Verified** | Red alert toast |
-| TC-2.6 | Empty fields | Submit with no email/password | Client-side error, no request sent | Blocked before request: "Please enter both your email address and password." | **Verified** | Form validation alert |
-| TC-2.7 | SQL injection attempt | Enter `' OR '1'='1` as email | Rejected as invalid email format / login fails safely (Supabase parameterizes queries) | Blocked by email validation format / rejected safely by Supabase Auth parameterized API | **Verified** | Form validation |
-| TC-2.8 | Cross-user data isolation | Log in as User A, attempt to query User B's profile via browser console (`supabaseClient.from('profiles').select().eq('user_id', <userB_id>)`) | Empty result — blocked by RLS policy | Returns empty array `[]` — blocked server-side by PostgreSQL Row-Level Security policy `profiles_select_own_or_admin` | **Verified** | Browser DevTools Console / RLS |
-
-## FR-9: Log Out (Status: Verified)
-
-| Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
-|---|---|---|---|---|---|---|
-| TC-9.1 | Logout terminates session | Click "Log out" on dashboard | Redirected to `login.html`, session cleared | `supabase.auth.signOut()` called, token removed from `localStorage`, redirected to `login.html` | **Verified** | Browser session cleared |
-| TC-9.2 | Post-logout access blocked | After logout, navigate directly to `dashboard.html` URL | Redirected to `login.html` (requireAuth blocks it) | `requireAuth()` detects null session, automatically redirects to `login.html` | **Verified** | Route guard redirect |
-| TC-9.3 | Logout available on admin page too | Log in as Admin, click "Log out" | Same behavior as TC-9.1 | Admin session destroyed, redirected to `login.html` | **Verified** | Admin Header logout button |
-
-## Evidence to capture for FYP2 report
-
-- Screenshot: registration form + success message
-- Screenshot: duplicate-email error
-- Screenshot: `public.users` and `auth.users` rows side by side (proves the trigger works)
-- Screenshot: login error (generic message)
-- Screenshot: Student dashboard vs Admin dashboard (proves role-based redirect)
-- Screenshot/console output: TC-2.8 cross-user isolation proof — this is strong evidence for your Security section
+`tests/auth-flows.test.cjs` adds 11 mocked controller tests; together with the three existing frontend tests, 14 pass. Covers redirect arguments, validation/duplicate response, role routing, transport/logout/guard failures, recovery update versus sign-out errors and isolated admin cleanup. These do not prove mailbox delivery. Real E01-E08 procedures and evidence form: `email-auth-acceptance.md`. User will execute them; results pending.

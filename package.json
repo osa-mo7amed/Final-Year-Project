@@ -1,0 +1,13 @@
+{
+  "name": "internmatch",
+  "private": true,
+  "version": "2.0.0",
+  "scripts": {
+    "start": "node scripts/serve.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "benchmark": "node evaluation/benchmark_accuracy.js"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.14"
+  }
+}

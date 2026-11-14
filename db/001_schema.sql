@@ -167,59 +167,22 @@ create trigger trg_applications_updated_at before update on public.applications
 -- (keeps the 1:1 link intact automatically at registration)
 -- Uses explicit search_path, safe role casting, on-conflict handling, and exception trap.
 -- ----------------------------------------------------------------------------
-create or replace function public.handle_new_auth_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public, auth
-as $$
-declare
-  v_role public.user_role := 'Student';
-  v_raw_role text;
+create or replace function public.handle_new_auth_user() returns trigger
+language plpgsql security definer set search_path = '' as $$
 begin
-  -- Safely parse role enum, tolerating variations
-  v_raw_role := new.raw_user_meta_data->>'role';
-  if v_raw_role in ('Student', 'Graduate', 'Admin') then
-    v_role := v_raw_role::public.user_role;
-  elsif v_raw_role = 'Fresh Graduate' then
-    v_role := 'Graduate'::public.user_role;
-  end if;
-
-  -- 1. Insert or update public.users (sanitizing HTML tags for XSS defense)
-  insert into public.users (id, full_name, role)
-  values (
-    new.id,
-    replace(replace(coalesce(new.raw_user_meta_data->>'full_name', 'Unnamed User'), '<', '&lt;'), '>', '&gt;'),
-    v_role
-  )
-  on conflict (id) do update
-    set full_name = excluded.full_name,
-        role = excluded.role,
-        updated_at = now();
-
-  -- 2. Auto-provision matching profile record (sanitizing HTML tags)
-  insert into public.profiles (user_id, field_of_study)
-  values (
-    new.id,
-    nullif(trim(replace(replace(coalesce(new.raw_user_meta_data->>'field_of_study', ''), '<', '&lt;'), '>', '&gt;')), '')
-  )
-  on conflict (user_id) do nothing;
-
+  insert into public.users(id,full_name,role) values(new.id,
+    coalesce(nullif(btrim(new.raw_user_meta_data->>'full_name'),''),'Unnamed User'),
+    case when new.raw_user_meta_data->>'role' in ('Graduate','Fresh Graduate') then 'Graduate'::public.user_role else 'Student'::public.user_role end);
+  insert into public.profiles(user_id,field_of_study) values(new.id,nullif(btrim(new.raw_user_meta_data->>'field_of_study'),''));
   return new;
-exception when others then
-  -- Prevent uncaught exceptions from failing the signup transaction
-  raise warning 'handle_new_auth_user error: %', sqlerrm;
-  return new;
-end;
-$$;
+end $$;
 
 drop trigger if exists trg_on_auth_user_created on auth.users;
 create trigger trg_on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_auth_user();
 
--- Ensure proper grants
+-- API grants are defined exclusively by 007_security_and_writes.sql.
 grant usage on schema public to postgres, anon, authenticated, service_role;
-grant all on all tables in schema public to postgres, anon, authenticated, service_role;
-grant all on all sequences in schema public to postgres, anon, authenticated, service_role;
-grant all on all routines in schema public to postgres, anon, authenticated, service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;

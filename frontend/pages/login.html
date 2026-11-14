@@ -5,50 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login — InternMatch</title>
   <link rel="stylesheet" href="../css/styles.css" />
-  <style>
-    .auth-wrapper {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 36px 20px;
-      background: radial-gradient(circle at 50% 15%, rgba(99, 102, 241, 0.18) 0%, rgba(16, 185, 129, 0.04) 40%, var(--im-canvas) 80%);
-      position: relative;
-    }
 
-    .auth-card {
-      background-color: var(--im-surface);
-      border: 1px solid var(--im-border);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: var(--radius-lg);
-      padding: 40px 36px;
-      max-width: 440px;
-      width: 100%;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      z-index: 1;
-    }
-
-    .auth-brand-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #6366f1 0%, #10b981 100%);
-      color: #ffffff;
-      padding: 6px 12px;
-      border-radius: var(--radius-sm);
-      font-family: var(--font-mono);
-      font-weight: 800;
-      font-size: 0.92rem;
-      margin-bottom: 22px;
-      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
-    }
-  </style>
+  <link rel="stylesheet" href="../css/experience.css" />
+  <script src="../js/experience.js" defer></script>
 </head>
 <body>
 
-<div class="auth-wrapper">
-  <div class="auth-card">
+<div class="auth-wrapper"><aside class="auth-story"><img src="../assets/career-2-1280.jpg" alt="" width="1280" height="720"><a href="../../index.html" class="brand-logo"><span class="badge-logo">im↗</span>InternMatch.</a><div class="auth-story-copy"><span class="eyebrow">YOUR NEXT CHAPTER STARTS HERE</span><h1>Big ambitions.<br><em>Brighter beginnings.</em></h1><p>Your skills are the starting point. Let’s find the opportunities that help you turn them into something meaningful.</p></div></aside>
+  <main class="auth-card" id="main-content"><a href="../../index.html" class="auth-back">← Back to home</a>
     <div class="auth-brand-badge">IM · InternMatch</div>
     <h2 style="font-size: 1.65rem;">Welcome back</h2>
     <p style="color: var(--im-text-muted); font-size: 0.92rem; margin-top: 6px; margin-bottom: 26px;">
@@ -60,15 +24,15 @@
     <form id="login-form" novalidate>
       <div class="form-group">
         <label class="form-label" for="email">Student / User Email</label>
-        <input type="email" id="email" name="email" class="form-control" placeholder="e.g. osama@student.uniten.edu.my" required />
+        <input type="email" id="email" name="email" autocomplete="email" class="form-control" placeholder="e.g. osama@student.uniten.edu.my" required />
       </div>
 
       <div class="form-group">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <label class="form-label" for="password">Password</label>
-          <a href="#" style="font-size: 0.8rem; color: #a5b4fc;" onclick="alert('Password reset link will be sent to your email.');">Forgot password?</a>
+          <a href="login.html" id="forgot-password" style="font-size: 0.8rem; color: #a5b4fc;">Forgot password?</a>
         </div>
-        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required />
+        <input type="password" id="password" name="password" autocomplete="current-password" class="form-control" placeholder="••••••••" required />
       </div>
 
       <button type="submit" id="submit-btn" class="btn btn-primary" style="margin-top: 14px; width: 100%; padding: 12px; font-size: 0.95rem;">Sign In →</button>
@@ -77,14 +41,23 @@
     <div style="text-align: center; margin-top: 26px; font-size: 0.88rem; color: var(--im-text-muted);">
       Don't have an account? <a href="register.html" style="font-weight: 600; color: #a5b4fc;">Register Now</a>
     </div>
-  </div>
+  </main>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4"></script>
 <script src="../js/supabase-config.js"></script>
 <script src="../js/auth.js"></script>
 <script>
   document.getElementById('login-form').addEventListener('submit', handleLogin);
+  document.getElementById('forgot-password').addEventListener('click',async e=>{
+    e.preventDefault(); const email=document.getElementById('email').value.trim();
+    const box=document.getElementById('form-alert');
+    if(!email || !document.getElementById('email').checkValidity()) return showAlert(box,'Enter your email address first.');
+    try {
+      const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:new URL('reset-password.html',location.href).href});
+      if(error) throw error;
+      showAlert(box,'If the address is registered, a recovery link will be sent. Check your inbox.','success');
+    }catch {showAlert(box,'Recovery could not be requested. Please retry later.');}
+  });
 </script>
 </body>
 </html>

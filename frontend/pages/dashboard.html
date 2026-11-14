@@ -5,14 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard — InternMatch</title>
   <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/experience.css" />
+  <script src="../js/experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 
 <div class="app-container">
   <!-- Sidebar Navigation -->
   <aside class="app-sidebar">
     <div class="brand-logo">
-      <span class="badge-logo">IM</span>
+      <span class="badge-logo">im↗</span>
       <span>InternMatch</span>
     </div>
     <ul class="nav-menu">
@@ -21,6 +24,7 @@
       <li><a href="skill-analysis.html" class="nav-link"><span>📈</span> Skill Analysis</a></li>
       <li><a href="search.html" class="nav-link"><span>🔍</span> Search Jobs</a></li>
     </ul>
+    <div class="sidebar-tip"><strong>A little progress, every day.</strong>Keep your skills up to date. Your next opportunity starts with you.</div>
     <div class="sidebar-user">
       <div class="user-name" id="sidebar-user-name">Loading...</div>
       <div class="user-id" id="sidebar-user-role">Student</div>
@@ -29,18 +33,20 @@
   </aside>
 
   <!-- Main Content -->
-  <main class="app-main">
+  <main class="app-main" id="main-content">
     <header class="main-header">
       <div>
         <h2>Job Recommendations</h2>
         <span style="font-size: 0.82rem; color: var(--im-text-dim);">Personalised matching ranked for your academic profile</span>
       </div>
       <div style="font-size: 0.82rem; color: var(--im-text-muted); background: var(--im-surface); padding: 6px 12px; border-radius: var(--radius-full); border: 1px solid var(--im-border);">
-        Live Evaluation Active
+        Your career workspace
       </div>
     </header>
 
     <div class="main-content">
+<p class="data-notice" role="note">Educational prototype: sample postings are not verified current vacancies. Scores indicate profile compatibility, not hiring probability.</p>
+<section class="workspace-hero" aria-label="Page introduction"><div class="workspace-hero-copy"><span class="eyebrow">YOUR CAREER, IN FOCUS</span><h1>Good things start with the right match.</h1><p>Discover opportunities built around your strengths. Your next chapter starts here.</p></div><img src="../assets/career-2-640.jpg" width="640" height="360" alt="" /></section>
       <div id="dashboard-alert" class="alert-toast"></div>
 
       <!-- Profile Strength Card (Figure 4.5) -->
@@ -56,14 +62,14 @@
           <div class="strength-bar-fill" id="strength-bar" style="width: 0%;"></div>
         </div>
         <div class="strength-hint" id="strength-message">
-          Add technical skills and career interests in My Profile to maximize recommendation precision.
+          Add technical skills and career interests in My Profile to describe your background more fully.
         </div>
       </div>
 
       <!-- Incomplete Profile Warning (if applicable) -->
       <div id="incomplete-profile-box" class="card" style="display: none; border-left: 4px solid var(--im-gap); background-color: rgba(245, 158, 11, 0.05); padding: 24px;">
         <h3 style="color: var(--im-gap-text); margin-bottom: 8px; font-size: 1.15rem;">⚠️ Build Your Profile to Unlock Recommendations</h3>
-        <p style="margin-bottom: 18px; color: var(--im-text-muted);">You haven't added any skills or academic details yet. InternMatch requires your profile to calculate accurate, explainable compatibility scores.</p>
+        <p style="margin-bottom: 18px; color: var(--im-text-muted);">Your profile has no saved skills yet. Add relevant skills and academic details to make the compatibility breakdown more useful.</p>
         <a href="profile.html" class="btn btn-primary" style="width: auto;">Complete Profile Now →</a>
       </div>
 
@@ -110,9 +116,11 @@
 </div>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4"></script>
 <script src="../js/supabase-config.js"></script>
 <script src="../js/auth.js"></script>
+<script src="../js/recommendations.js"></script>
+<script src="../js/profile-strength.js"></script>
 <script src="../js/dashboard.js"></script>
 </body>
 </html>

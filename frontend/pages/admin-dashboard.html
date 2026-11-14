@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard — InternMatch</title>
   <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/experience.css" />
+  <script src="../js/experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 
 <!-- Admin Header Bar -->
 <header class="main-header" style="position: sticky; top: 0;">
   <div class="brand-logo" style="padding: 0; border: none;">
-    <span class="badge-logo">IM</span>
+    <span class="badge-logo">im↗</span>
     <span>InternMatch <span style="font-size: 0.85rem; color: var(--im-gap-text); font-weight: 600;">/ Administrator Panel</span></span>
   </div>
   <div style="display: flex; align-items: center; gap: 20px;">
@@ -22,11 +25,12 @@
   </div>
 </header>
 
-<div class="main-content" style="max-width: 1100px; margin: 0 auto; padding-top: 36px;">
+<div id="main-content" class="main-content" style="max-width: 1100px; margin: 0 auto; padding-top: 36px;">
+<section class="workspace-hero" aria-label="Page introduction"><div class="workspace-hero-copy"><span class="eyebrow">YOUR PLATFORM AT A GLANCE</span><h1>Create space for new possibilities.</h1><p>Manage opportunities and support the students taking their next career step.</p></div><img src="../assets/career-2-640.jpg" width="640" height="360" alt="" /></section>
   
   <!-- Status Verification Alert (Figure 4.3 / TC-2.2 Proof) -->
   <div class="alert-toast alert-toast--success is-visible" style="margin-bottom: 24px;">
-    ✓ <strong>Role-Based Access Control (RBAC) Verified:</strong> Administrator privileges active. Role-based redirect confirmed.
+    ✓ <strong>Administrator workspace:</strong> Manage opportunities and support your community.
   </div>
 
   <!-- Welcome Card -->
@@ -47,7 +51,7 @@
         <div style="font-size: 1.5rem; margin-bottom: 12px;">💼</div>
         <h3 style="margin-bottom: 8px;">Job Postings Management</h3>
         <p style="color: var(--im-text-muted); font-size: 0.88rem; margin-bottom: 20px;">
-          Create, edit, toggle active status, and attach required vs preferred technical and soft skill tags (FR-7 / UC-07).
+          Create, edit, toggle active status, and attach required vs preferred technical and soft skill tags.
         </p>
       </div>
       <a href="admin-jobs.html" class="btn btn-primary">Go to Manage Jobs →</a>
@@ -59,7 +63,7 @@
         <div style="font-size: 1.5rem; margin-bottom: 12px;">👥</div>
         <h3 style="margin-bottom: 8px;">User Accounts & Moderation</h3>
         <p style="color: var(--im-text-muted); font-size: 0.88rem; margin-bottom: 20px;">
-          View directory, modify system roles (Student, Graduate, Admin), and activate/deactivate user accounts (FR-8 / UC-08).
+          View directory, modify system roles (Student, Graduate, Admin), and activate/deactivate user accounts.
         </p>
       </div>
       <a href="admin-users.html" class="btn btn-primary">Go to Manage Users →</a>
@@ -81,7 +85,7 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4"></script>
 <script src="../js/supabase-config.js"></script>
 <script src="../js/auth.js"></script>
 <script>

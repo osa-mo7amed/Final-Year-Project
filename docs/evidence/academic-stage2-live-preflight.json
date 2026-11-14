@@ -1,0 +1,56 @@
+{
+  "checkpoint": "2.1",
+  "kind": "Read-only hosted inventory; not an authenticated user-journey test",
+  "projectId": "uszwimitxmzqwtqlugxx",
+  "query": "select now() as observed_at_utc, (now() at time zone 'Asia/Kuala_Lumpur')::date as eligibility_date_malaysia, (select jsonb_build_object('total',count(*),'eligible',count(*) filter(where status='Active' and (deadline is null or deadline >= (now() at time zone 'Asia/Kuala_Lumpur')::date)),'expired_active',count(*) filter(where status='Active' and deadline < (now() at time zone 'Asia/Kuala_Lumpur')::date),'closed',count(*) filter(where status='Closed')) from public.job_postings) as job_counts, (select jsonb_agg(jsonb_build_object('job_posting_id',job_posting_id,'title',title,'deadline',deadline)) from public.job_postings where status='Active' and (deadline is null or deadline >= (now() at time zone 'Asia/Kuala_Lumpur')::date)) as eligible_postings, (select jsonb_agg(jsonb_build_object('name',p.proname,'body_md5',md5(p.prosrc),'security_definer',p.prosecdef,'config',p.proconfig)) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('score_compatibility','calculate_recommendations_for_user','get_skill_analysis_for_job')) as recommendation_functions;",
+  "rows": [
+    {
+      "observed_at_utc": "2026-11-14 10:18:04.602856+00",
+      "eligibility_date_malaysia": "2026-11-14",
+      "job_counts": {
+        "total": 10,
+        "closed": 0,
+        "eligible": 1,
+        "expired_active": 9
+      },
+      "eligible_postings": [
+        {
+          "title": "SQA Intern",
+          "deadline": "2026-11-14",
+          "job_posting_id": 17
+        }
+      ],
+      "recommendation_functions": [
+        {
+          "name": "calculate_recommendations_for_user",
+          "config": [
+            "search_path=\"\""
+          ],
+          "body_md5": "c60d8f0635bef189fad3f7e62cc7de75",
+          "security_definer": false
+        },
+        {
+          "name": "get_skill_analysis_for_job",
+          "config": [
+            "search_path=\"\""
+          ],
+          "body_md5": "82508baac48f1d5b09c531c2bc4e77d6",
+          "security_definer": false
+        },
+        {
+          "name": "score_compatibility",
+          "config": [
+            "search_path=\"\""
+          ],
+          "body_md5": "2ae1260187bd5b87db6926ccbabb2aa6",
+          "security_definer": false
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Eligible does not mean verified vacancy or safe synthetic test data.",
+    "No user accounts, jobs, applications, auth settings or database schema were changed.",
+    "Function-body parity covers only the three recommendation functions, not full deployment parity."
+  ]
+}

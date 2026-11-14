@@ -1,27 +1,18 @@
-# Test Cases — Recommendation Engine (FR-4) & Skill Gap Analysis (FR-5)
+# Recommendation, search and application cases
 
-Run these tests in your browser using your logged-in student account (`osaalfahal@gmail.com`) which now has a completed profile with technical skills, soft skills, field of study, and career interests.
+| Case | Action | Expected | Evidence |
+|---|---|---|---|
+| REC-01 | Compare same job in dashboard/search/analysis | Same score and underlying explanation | Shared endpoint, DB tests, live browser evidence |
+| REC-02 | Required/preferred, empty fields/lists, literal regex characters in interests | Documented formula/edge behavior | database.test.cjs |
+| REC-03 | Equal scores/deadlines | Stable ascending job ID | database.test.cjs |
+| REC-04 | Expired or Closed jobs | Excluded from student search/recommendations and application inserts | database.test.cjs |
+| REC-05 | RPC failure versus valid empty result | Explicit failure versus empty state, no silent fallback | frontend.test.cjs and mock browser outage |
+| REC-06 | Keyword plus type/location/industry/required-skill filters | AND across filter groups; all selected required skills present | Mock browser combined keyword/industry/location/type and required-skill checks passed |
+| REC-07 | No-results query then reset | Empty state then all eligible rows | Mock browser |
+| REC-08 | Job details/skill guidance | Correct matched/missing required/preferred categories | Mock UI plus live browser evidence |
+| APP-01 | Apply then repeat | One row only, duplicate feedback | DB suite/live browser |
+| APP-02 | Apply for another user or expired job | Rejected | DB suite |
+| JOB-01 | Fail job skill write | Parent and old skills preserved | DB suite |
+| JOB-02 | Archive job with applications | Closed, application history retained | DB suite/live browser |
 
----
-
-## FR-4: Job Recommendations Feed (`dashboard.html`)
-
-| Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
-|---|---|---|---|---|---|---|
-| **TC-4.1** | Ranked Recommendations Display | Log in as Student, view `dashboard.html` | Job cards load in descending order of `Match Score` (highest match at the top) | | Not Yet Tested | |
-| **TC-4.2** | 4-Factor Formula Accuracy | Inspect top recommended job card's match percentage | Score strictly matches formula: $0.50 \cdot S_{\text{req}} + 0.20 \cdot S_{\text{pref}} + 0.15 \cdot S_{\text{field}} + 0.15 \cdot S_{\text{int}}$ (scaled to 0–100%) | | Not Yet Tested | |
-| **TC-4.3** | Transparent Match Explanation | Read the explanation text below the score badge on any card | Clear, explainable breakdown showing required/preferred skill overlaps and field alignment (rule-based, zero ML hallucination) | | Not Yet Tested | |
-| **TC-4.4** | Job Detail Modal | Click on any job card in the feed | Modal opens displaying full role overview, deadline, required vs preferred skill tags, and action buttons | | Not Yet Tested | |
-| **TC-4.5** | Skill Analysis Navigation | In the job modal or card, click "Detailed Skill Analysis" | Redirects to `skill-analysis.html?job_id=<id>` with the corresponding position pre-loaded | | Not Yet Tested | |
-
----
-
-## FR-5: Skill Alignment & Gap Analysis (`skill-analysis.html`)
-
-| Test ID | Scenario | Steps | Expected Result | Actual Result | Status | Evidence |
-|---|---|---|---|---|---|---|
-| **TC-5.1** | Circular Score Badge | Open `skill-analysis.html?job_id=1` | Large circular badge renders with the exact match percentage and high/medium/low compatibility label | | Not Yet Tested | |
-| **TC-5.2** | Dual-Column Breakdown | Inspect the alignment columns | **Matched Skills** (green $\checkmark$) lists overlapping skills; **Missing Skills** (red $\times$) clearly lists skill gaps | | Not Yet Tested | |
-| **TC-5.3** | Actionable Improvement Suggestions | Scroll down to "Skill Improvement Suggestions" | Curated learning suggestions from `public.skill_guidance` render for each missing skill (course links, project ideas, learning resources) | | Not Yet Tested | |
-| **TC-5.4** | Job Selector Fallback | Navigate directly to `skill-analysis.html` without `?job_id=` | Dropdown appears at the top: "Select a Job Posting to Analyze"; selecting a job updates the view instantly | | Not Yet Tested | |
-| **TC-5.5** | Application Trigger (FR-10 Integration) | Click "Apply Now" button | Toast confirms application submitted; button state updates to prevent duplicate submissions | | Not Yet Tested | |
+Seed postings are demonstrations. Applications stay inside InternMatch; no employer workflow is implemented.

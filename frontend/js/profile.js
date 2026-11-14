@@ -8,6 +8,7 @@ let currentProfileId = null;
 let masterSkills = [];
 let userTechSkills = [];
 let userSoftSkills = [];
+let profileLoadFailed = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const authContext = await requireAuth();
@@ -19,6 +20,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadUserProfile();
   setupEventListeners();
   updateProfileStrengthDisplay();
+  document.getElementById('save-profile-btn').disabled = profileLoadFailed;
+  document.querySelectorAll('#main-content input, #main-content select, #add-tech-skill-btn, #add-soft-skill-btn')
+    .forEach(control => { control.disabled = profileLoadFailed; });
 });
 
 // ----------------------------------------------------------------------------
@@ -49,6 +53,9 @@ async function loadMasterSkills() {
   if (!error && data) {
     masterSkills = data;
     populateSkillDropdowns();
+  } else {
+    profileLoadFailed = true;
+    showToast('Skills could not be loaded. Reload before editing your profile.', 'error');
   }
 }
 
@@ -83,6 +90,7 @@ async function loadUserProfile() {
     .single();
 
   if (error && error.code !== 'PGRST116') {
+    profileLoadFailed = true;
     showToast('Failed to load profile details.', 'error');
     return;
   }
@@ -92,7 +100,7 @@ async function loadUserProfile() {
     document.getElementById('institution').value = profile.institution || '';
     document.getElementById('programme').value = profile.programme || '';
     document.getElementById('fieldOfStudy').value = profile.field_of_study || '';
-    document.getElementById('yearOfStudy').value = profile.year_of_study !== null ? profile.year_of_study : '4';
+    document.getElementById('yearOfStudy').value = profile.year_of_study !== null ? profile.year_of_study : '';
     document.getElementById('cgpa').value = profile.cgpa !== null ? profile.cgpa : '';
     document.getElementById('careerInterests').value = profile.career_interests || '';
     document.getElementById('certifications').value = profile.certifications || '';
@@ -120,6 +128,9 @@ async function loadUserProfile() {
       });
 
       renderSkillChips();
+    } else {
+      profileLoadFailed = true;
+      showToast('Your saved skills could not be loaded. Reload before editing.', 'error');
     }
   }
 }
@@ -139,7 +150,7 @@ function renderSkillChips() {
     userTechSkills.forEach(s => {
       const chip = document.createElement('div');
       chip.className = 'tag-chip';
-      chip.innerHTML = `${escapeHtml(s.skill_name)} <span class="tag-remove" data-id="${s.skill_id}" data-type="tech">&times;</span>`;
+      chip.innerHTML = `${escapeHtml(s.skill_name)} <button type="button" aria-label="Remove skill" class="tag-remove" data-id="${s.skill_id}" data-type="tech">&times;</button>`;
       techContainer.appendChild(chip);
     });
   }
@@ -152,7 +163,7 @@ function renderSkillChips() {
     userSoftSkills.forEach(s => {
       const chip = document.createElement('div');
       chip.className = 'tag-chip';
-      chip.innerHTML = `${escapeHtml(s.skill_name)} <span class="tag-remove" data-id="${s.skill_id}" data-type="soft">&times;</span>`;
+      chip.innerHTML = `${escapeHtml(s.skill_name)} <button type="button" aria-label="Remove skill" class="tag-remove" data-id="${s.skill_id}" data-type="soft">&times;</button>`;
       softContainer.appendChild(chip);
     });
   }
@@ -164,46 +175,10 @@ function renderSkillChips() {
 // 5. Calculate & Display Dynamic Profile Strength (0 - 100%)
 // ----------------------------------------------------------------------------
 function calculateProfileStrength() {
-  let score = 15; // Basic info (Full name & email verified)
-
-  const inst = document.getElementById('institution').value.trim();
-  const prog = document.getElementById('programme').value.trim();
-  const field = document.getElementById('fieldOfStudy').value.trim();
-  const cgpa = document.getElementById('cgpa').value.trim();
-
-  // Academic background (25%)
-  let academicPoints = 0;
-  if (inst) academicPoints += 7;
-  if (prog) academicPoints += 6;
-  if (field) academicPoints += 6;
-  if (cgpa && !isNaN(cgpa) && parseFloat(cgpa) > 0) academicPoints += 6;
-  score += academicPoints;
-
-  // Technical skills (25%)
-  if (userTechSkills.length >= 3) {
-    score += 25;
-  } else if (userTechSkills.length === 2) {
-    score += 18;
-  } else if (userTechSkills.length === 1) {
-    score += 10;
-  }
-
-  // Soft skills (15%)
-  if (userSoftSkills.length >= 2) {
-    score += 15;
-  } else if (userSoftSkills.length === 1) {
-    score += 8;
-  }
-
-  // Career interests (10%)
-  const interests = document.getElementById('careerInterests').value.trim();
-  if (interests.length > 0) score += 10;
-
-  // Certifications (10%)
-  const certs = document.getElementById('certifications').value.trim();
-  if (certs.length > 0) score += 10;
-
-  return Math.min(100, score);
+  return profileStrength({institution:document.getElementById('institution').value,
+    programme:document.getElementById('programme').value,field_of_study:document.getElementById('fieldOfStudy').value,
+    cgpa:document.getElementById('cgpa').value,career_interests:document.getElementById('careerInterests').value,
+    certifications:document.getElementById('certifications').value},[...userTechSkills,...userSoftSkills]);
 }
 
 function updateProfileStrengthDisplay() {
@@ -214,11 +189,11 @@ function updateProfileStrengthDisplay() {
 
   const hint = document.getElementById('strength-hint');
   if (strength >= 85) {
-    hint.textContent = 'Excellent! Your profile is complete and ready for highly accurate job recommendations.';
+    hint.textContent = 'Your profile contains most of the requested information. Completeness does not measure recommendation accuracy.';
   } else if (strength >= 60) {
-    hint.textContent = 'Good progress! Add more technical skills and certifications to reach top matching precision.';
+    hint.textContent = 'Good progress. Add relevant skills and any certifications to describe your background.';
   } else {
-    hint.textContent = 'Complete your academic information and add at least 3 technical skills to unlock recommendations.';
+    hint.textContent = 'Add academic information and relevant skills to make your compatibility scores more useful.';
   }
 }
 
@@ -226,6 +201,7 @@ function updateProfileStrengthDisplay() {
 // 6. Save Profile Changes
 // ----------------------------------------------------------------------------
 async function handleSaveProfile() {
+  if (profileLoadFailed) return;
   const saveBtn = document.getElementById('save-profile-btn');
   saveBtn.disabled = true;
   saveBtn.textContent = 'Saving...';
@@ -238,7 +214,6 @@ async function handleSaveProfile() {
   const cgpa = cgpaRaw !== '' ? parseFloat(cgpaRaw) : null;
   const careerInterests = document.getElementById('careerInterests').value.trim();
   const certifications = document.getElementById('certifications').value.trim();
-  const profileStrength = calculateProfileStrength();
 
   // Validation
   if (cgpa !== null && (isNaN(cgpa) || cgpa < 0 || cgpa > 4.0)) {
@@ -247,97 +222,17 @@ async function handleSaveProfile() {
     return showToast('CGPA must be a valid number between 0.00 and 4.00', 'error');
   }
 
-  // Ensure public.users record exists for this auth user to satisfy foreign key
-  const { data: userCheck } = await supabaseClient
-    .from('users')
-    .select('id')
-    .eq('id', currentUserId)
-    .maybeSingle();
-
-  if (!userCheck) {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const fullName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Student User';
-    const role = session?.user?.user_metadata?.role || 'Student';
-    const { error: uErr } = await supabaseClient
-      .from('users')
-      .upsert({ id: currentUserId, full_name: fullName, role: role });
-    if (uErr) {
-      console.warn('Auto-provisioning user row warning:', uErr);
-    }
-  }
-
-  // 1. Upsert Profile
-  const profilePayload = {
-    user_id: currentUserId,
-    institution,
-    programme,
-    field_of_study: fieldOfStudy,
-    year_of_study: yearOfStudy,
-    cgpa,
-    career_interests: careerInterests,
-    certifications,
-    profile_strength: profileStrength,
-    updated_at: new Date().toISOString()
-  };
-
-  let profileId = currentProfileId;
-
-  if (profileId) {
-    const { error: pErr } = await supabaseClient
-      .from('profiles')
-      .update(profilePayload)
-      .eq('profile_id', profileId);
-
-    if (pErr) {
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save Changes';
-      return showToast(`Failed to update profile: ${pErr.message}`, 'error');
-    }
-  } else {
-    const { data: newP, error: pErr } = await supabaseClient
-      .from('profiles')
-      .insert(profilePayload)
-      .select('profile_id')
-      .single();
-
-    if (pErr) {
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save Changes';
-      return showToast(`Failed to create profile: ${pErr.message}`, 'error');
-    }
-    profileId = newP.profile_id;
-    currentProfileId = profileId;
-  }
-
-  // 2. Sync Profile Skills
-  const allUserSkills = [...userTechSkills, ...userSoftSkills];
-  const targetSkillIds = allUserSkills.map(s => s.skill_id);
-
-  // Delete removed skills
-  const { error: delErr } = await supabaseClient
-    .from('profile_skills')
-    .delete()
-    .eq('profile_id', profileId);
-
-  // Insert current skills
-  if (targetSkillIds.length > 0) {
-    const skillRows = targetSkillIds.map(sid => ({
-      profile_id: profileId,
-      skill_id: sid
-    }));
-
-    const { error: insErr } = await supabaseClient
-      .from('profile_skills')
-      .insert(skillRows);
-
-    if (insErr) {
-      console.warn('Skill sync error:', insErr);
-    }
-  }
-
-  saveBtn.disabled = false;
-  saveBtn.textContent = 'Save Changes';
-  showToast('Profile updated successfully! Match scores have been refreshed.', 'success');
+  try {
+    const {data,error} = await supabaseClient.rpc('save_profile', {
+      p_profile: {institution,programme,field_of_study:fieldOfStudy,year_of_study:Number.isNaN(yearOfStudy)?null:yearOfStudy,
+        cgpa,career_interests:careerInterests,certifications},
+      p_skill_ids:[...userTechSkills,...userSoftSkills].map(s=>s.skill_id)
+    });
+    if (error) throw error;
+    currentProfileId=data;
+    showToast('Profile and skills saved. Recommendations use these changes on their next load.','success');
+  } catch(err) {showToast('Profile could not be saved. Check your inputs and retry.','error');}
+  finally {saveBtn.disabled=false;saveBtn.textContent='Save Changes';}
 }
 
 // ----------------------------------------------------------------------------
@@ -415,5 +310,5 @@ function showToast(msg, type = 'info') {
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

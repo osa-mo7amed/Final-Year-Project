@@ -43,7 +43,7 @@ async function fetchAdminUsers() {
     full_name: u.full_name || 'Unnamed User',
     role: u.role || 'Student',
     account_status: u.account_status || 'Active',
-    field_of_study: u.profiles && u.profiles.length > 0 ? (u.profiles[0].field_of_study || '—') : '—',
+    field_of_study: (Array.isArray(u.profiles) ? u.profiles[0]?.field_of_study : u.profiles?.field_of_study) || '—',
     created_at: u.created_at
   }));
 
@@ -179,9 +179,7 @@ async function handleSaveUserSubmit(event) {
   };
 
   const { error } = await supabaseClient
-    .from('users')
-    .update(payload)
-    .eq('id', userId);
+    .rpc('admin_update_user',{p_user_id:userId,p_name:fullName,p_role:role,p_status:status});
 
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save Changes';
@@ -204,9 +202,7 @@ async function handleToggleStatus(userId, currentStatus) {
   if (!confirm(`Are you sure you want to set this user account to ${nextStatus}?`)) return;
 
   const { error } = await supabaseClient
-    .from('users')
-    .update({ account_status: nextStatus, updated_at: new Date().toISOString() })
-    .eq('id', userId);
+    .rpc('admin_update_user',{p_user_id:userId,p_name:allUsers.find(u=>u.id===userId).full_name,p_role:allUsers.find(u=>u.id===userId).role,p_status:nextStatus});
 
   if (error) {
     showToast(`Status update failed: ${error.message}`, 'error');
@@ -258,5 +254,5 @@ function showToast(msg, type = 'info') {
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

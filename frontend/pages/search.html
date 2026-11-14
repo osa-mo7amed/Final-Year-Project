@@ -5,14 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Search Jobs — InternMatch</title>
   <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/experience.css" />
+  <script src="../js/experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 
 <div class="app-container">
   <!-- Sidebar Navigation -->
   <aside class="app-sidebar">
     <div class="brand-logo">
-      <span class="badge-logo">IM</span>
+      <span class="badge-logo">im↗</span>
       <span>InternMatch</span>
     </div>
     <ul class="nav-menu">
@@ -21,6 +24,7 @@
       <li><a href="skill-analysis.html" class="nav-link"><span>📈</span> Skill Analysis</a></li>
       <li><a href="search.html" class="nav-link active"><span>🔍</span> Search Jobs</a></li>
     </ul>
+    <div class="sidebar-tip"><strong>A little progress, every day.</strong>Keep your skills up to date. Your next opportunity starts with you.</div>
     <div class="sidebar-user">
       <div class="user-name" id="sidebar-user-name">Loading...</div>
       <div class="user-id" id="sidebar-user-role">Student</div>
@@ -29,7 +33,7 @@
   </aside>
 
   <!-- Main Content -->
-  <main class="app-main">
+  <main class="app-main" id="main-content">
     <header class="main-header">
       <div>
         <h2>Search & Explore Listings</h2>
@@ -41,6 +45,8 @@
     </header>
 
     <div class="main-content" style="max-width: 1240px;">
+<p class="data-notice" role="note">Educational prototype: sample postings are not verified current vacancies. Scores indicate profile compatibility, not hiring probability.</p>
+<section class="workspace-hero" aria-label="Page introduction"><div class="workspace-hero-copy"><span class="eyebrow">EXPLORE WHAT’S NEXT</span><h1>Find a role. Discover your direction.</h1><p>From your first internship to your first full-time role, explore opportunities that move you forward.</p></div><img src="../assets/career-5-640.jpg" width="640" height="360" alt="" /></section>
       <div id="search-alert" class="alert-toast"></div>
 
       <div class="search-layout">
@@ -53,7 +59,7 @@
 
           <!-- Industry Filter -->
           <div class="filter-section">
-            <div class="filter-title">Industry Sector</div>
+            <label class="filter-title" for="industry-filter" style="display: block;">Industry Sector</label>
             <select id="industry-filter" class="form-control">
               <option value="">All Industries</option>
               <option value="Information Technology">Information Technology</option>
@@ -83,7 +89,7 @@
 
           <!-- Location Filter -->
           <div class="filter-section">
-            <div class="filter-title">Location / Mode</div>
+            <label class="filter-title" for="location-filter" style="display: block;">Location / Mode</label>
             <select id="location-filter" class="form-control">
               <option value="">All Locations</option>
               <option value="Kuala Lumpur">Kuala Lumpur</option>
@@ -125,9 +131,10 @@
 </div>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4"></script>
 <script src="../js/supabase-config.js"></script>
 <script src="../js/auth.js"></script>
+<script src="../js/recommendations.js"></script>
 <script src="../js/search.js"></script>
 </body>
 </html>

@@ -5,23 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin: Manage Users — InternMatch</title>
   <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/experience.css" />
+  <script src="../js/experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 
 <!-- Admin Header Bar (Figure 4.10) -->
 <header class="main-header" style="position: sticky; top: 0;">
   <div class="brand-logo" style="padding: 0; border: none;">
-    <span class="badge-logo">IM</span>
+    <span class="badge-logo">im↗</span>
     <span>InternMatch <span style="font-size: 0.85rem; color: var(--im-gap-text); font-weight: 600;">/ Administrator Panel</span></span>
   </div>
   <div style="display: flex; align-items: center; gap: 20px;">
+    <a href="admin-dashboard.html" class="admin-overview-link">Overview</a>
     <a href="admin-jobs.html" style="font-weight: 500; color: var(--im-text-muted); text-decoration: none;">Manage Jobs</a>
     <a href="admin-users.html" style="font-weight: 700; color: #a5b4fc; text-decoration: none; border-bottom: 2px solid var(--im-accent); padding-bottom: 4px;">Manage Users</a>
     <button id="logout-btn" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.82rem;">Sign Out</button>
   </div>
 </header>
 
-<div class="main-content" style="max-width: 1200px; margin: 0 auto; padding-top: 32px;">
+<div id="main-content" class="main-content" style="max-width: 1200px; margin: 0 auto; padding-top: 32px;">
+<section class="workspace-hero" aria-label="Page introduction"><div class="workspace-hero-copy"><span class="eyebrow">YOUR COMMUNITY</span><h1>Support every next chapter.</h1><p>Manage your community of students, graduates, and administrators in one place.</p></div><img src="../assets/career-3-640.jpg" width="640" height="360" alt="" /></section>
   <div id="users-alert" class="alert-toast"></div>
 
   <!-- Page Title & Search -->
@@ -31,17 +36,29 @@
       <p id="users-count-label">Loading registered users count…</p>
     </div>
     <div style="display: flex; gap: 12px; align-items: center;">
-      <input type="text" id="user-search-input" class="form-control" placeholder="Search users by name or email..." style="width: 300px;" />
+      <input type="text" id="user-search-input" class="form-control" placeholder="Search by name, role or field..." style="width: 300px;" />
     </div>
   </div>
 
+  <details class="card" style="margin-bottom:24px">
+    <summary>Create a student or graduate account</summary>
+    <p>Email verification is required. Assign administrator access separately after confirming the account owner.</p>
+    <form id="create-user-form" class="responsive-form-grid">
+      <label for="newName">Full name</label><input class="form-control" id="newName" name="newName" required minlength="2" maxlength="100">
+      <label for="newEmail">Email</label><input class="form-control" id="newEmail" name="newEmail" type="email" required autocomplete="off">
+      <label for="newPassword">Initial password (share privately)</label><input class="form-control" id="newPassword" name="newPassword" type="password" required minlength="8" autocomplete="new-password">
+      <label for="newField">Field of study</label><input class="form-control" id="newField" name="newField" required maxlength="100">
+      <label for="newRole">Academic status</label><select class="form-control" id="newRole" name="newRole"><option>Student</option><option>Graduate</option></select>
+      <button class="btn btn-primary" type="submit" id="create-user-btn">Create account</button>
+    </form>
+  </details>
   <!-- Users Table (Figure 4.10) -->
   <div class="data-table-container">
     <table class="data-table">
       <thead>
         <tr>
           <th>Full Name</th>
-          <th>Email</th>
+          <th>User ID</th>
           <th>Role</th>
           <th>Field of Study</th>
           <th>Status</th>
@@ -107,9 +124,10 @@
 </div>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4"></script>
 <script src="../js/supabase-config.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/admin-users.js"></script>
+<script src="../js/admin-create-user.js"></script>
 </body>
 </html>

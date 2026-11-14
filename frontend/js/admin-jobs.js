@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadMasterSkills();
   await fetchAdminJobs();
   setupAdminEvents();
+  document.getElementById('open-add-job-btn').disabled = false;
 });
 
 // ----------------------------------------------------------------------------
@@ -123,7 +124,7 @@ function renderJobsTable() {
         <td><span class="status-badge ${statusClass}">${escapeHtml(job.status)}</span></td>
         <td style="text-align: right;">
           <button class="btn btn-secondary edit-job-btn" data-id="${job.job_posting_id}" style="padding: 4px 10px; font-size: 0.78rem;">Edit</button>
-          <button class="btn btn-danger delete-job-btn" data-id="${job.job_posting_id}" style="padding: 4px 10px; font-size: 0.78rem; margin-left: 4px;">Delete</button>
+          <button class="btn btn-danger delete-job-btn" data-id="${job.job_posting_id}" style="padding: 4px 10px; font-size: 0.78rem; margin-left: 4px;">Archive</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -218,7 +219,7 @@ function renderModalSkillTags() {
   modalAttachedSkills.forEach(s => {
     const chip = document.createElement('span');
     chip.className = s.is_required ? 'tag-chip tag-chip--matched' : 'tag-chip';
-    chip.innerHTML = `${escapeHtml(s.skill_name)} <strong style="font-size:0.75rem;">[${s.is_required ? 'Req' : 'Pref'}]</strong> <span class="tag-remove" data-id="${s.skill_id}">&times;</span>`;
+    chip.innerHTML = `${escapeHtml(s.skill_name)} <strong style="font-size:0.75rem;">[${s.is_required ? 'Req' : 'Pref'}]</strong> <button type="button" aria-label="Remove skill" class="tag-remove" data-id="${s.skill_id}">&times;</button>`;
     container.appendChild(chip);
   });
 }
@@ -243,70 +244,27 @@ async function handleSaveJobSubmit(event) {
     updated_at: new Date().toISOString()
   };
 
-  let targetId = jobId;
-
-  if (jobId) {
-    const { error } = await supabaseClient
-      .from('job_postings')
-      .update(payload)
-      .eq('job_posting_id', parseInt(jobId, 10));
-
-    if (error) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Save Job Posting';
-      return showToast(`Update failed: ${error.message}`, 'error');
-    }
-  } else {
-    const { data: newJob, error } = await supabaseClient
-      .from('job_postings')
-      .insert(payload)
-      .select('job_posting_id')
-      .single();
-
-    if (error) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Save Job Posting';
-      return showToast(`Creation failed: ${error.message}`, 'error');
-    }
-    targetId = newJob.job_posting_id;
-  }
-
-  // Sync Job Skills
-  if (targetId) {
-    await supabaseClient
-      .from('job_skills')
-      .delete()
-      .eq('job_posting_id', targetId);
-
-    if (modalAttachedSkills.length > 0) {
-      const rows = modalAttachedSkills.map(s => ({
-        job_posting_id: targetId,
-        skill_id: s.skill_id,
-        is_required: s.is_required
-      }));
-      await supabaseClient.from('job_skills').insert(rows);
-    }
-  }
-
-  submitBtn.disabled = false;
-  submitBtn.textContent = 'Save Job Posting';
-  document.getElementById('job-form-modal').classList.remove('is-open');
-  showToast('Job posting saved successfully!', 'success');
-  await fetchAdminJobs();
+  try {
+    const {error}=await supabaseClient.rpc('save_job',{p_job_id:jobId?Number(jobId):null,p_job:payload,
+      p_skills:modalAttachedSkills.map(s=>({skill_id:s.skill_id,is_required:s.is_required}))});
+    if(error) throw error;
+    document.getElementById('job-form-modal').classList.remove('is-open');
+    showToast('Job and skills saved successfully.','success');
+    await fetchAdminJobs();
+  } catch(err) {showToast('Job could not be saved. Check the fields and retry.','error');}
+  finally {submitBtn.disabled=false;submitBtn.textContent='Save Job Posting';}
 }
 
 async function handleDeleteJob(jobId) {
-  if (!confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) return;
+  if (!confirm('Archive this posting? It will close to new applications; existing applications will be retained.')) return;
 
   const { error } = await supabaseClient
-    .from('job_postings')
-    .delete()
-    .eq('job_posting_id', jobId);
+    .rpc('archive_job',{p_job_id:jobId});
 
   if (error) {
-    showToast(`Delete failed: ${error.message}`, 'error');
+    showToast(`Archive failed: ${error.message}`, 'error');
   } else {
-    showToast('Job posting deleted.', 'success');
+    showToast('Job posting archived.', 'success');
     await fetchAdminJobs();
   }
 }
@@ -385,5 +343,5 @@ function showToast(msg, type = 'info') {
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

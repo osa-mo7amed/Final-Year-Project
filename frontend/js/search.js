@@ -8,6 +8,7 @@ let currentProfile = null;
 let userSkillIds = [];
 let allJobs = [];
 let masterSkills = [];
+let jobsLoaded = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
   const authContext = await requireAuth();
@@ -71,7 +72,7 @@ async function loadSkillsFilter() {
     masterSkills = data;
     container.innerHTML = '';
     // Show top common tech skills first
-    data.slice(0, 15).forEach(s => {
+    data.forEach(s => {
       const label = document.createElement('label');
       label.className = 'filter-checkbox-label';
       label.innerHTML = `<input type="checkbox" name="skillFilter" value="${s.skill_id}" /> ${escapeHtml(s.skill_name)}`;
@@ -84,93 +85,38 @@ async function loadSkillsFilter() {
 // 3. Fetch All Active Job Postings
 // ----------------------------------------------------------------------------
 async function fetchAllJobs() {
-  const { data: jobs, error } = await supabaseClient
-    .from('job_postings')
-    .select(`
-      job_posting_id,
-      title,
-      company,
-      description,
-      job_type,
-      location,
-      industry,
-      deadline,
-      job_skills (
-        is_required,
-        skills (skill_id, skill_name, category)
-      )
-    `)
-    .eq('status', 'Active')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    showToast('Failed to load job listings.', 'error');
-    return;
-  }
-
-  allJobs = (jobs || []).map(job => {
-    const jobSkills = job.job_skills || [];
-    const reqSkills = [];
-    const prefSkills = [];
-    const allSkillsList = [];
-
-    jobSkills.forEach(js => {
-      if (js.skills) {
-        allSkillsList.push(js.skills);
-        if (js.is_required) {
-          reqSkills.push(js.skills.skill_id);
-        } else {
-          prefSkills.push(js.skills.skill_id);
-        }
-      }
+  jobsLoaded = false;
+  try {
+    allJobs = (await fetchRecommendations(currentUserId)).map(job => ({...job,
+      skills_list:job.skills,skill_ids:job.skills.filter(s=>s.is_required).map(s=>s.skill_id)}));
+    jobsLoaded = true;
+    hideAlert(document.getElementById('search-alert'));
+    applyFiltersAndRender();
+  } catch (err) {
+    allJobs = [];
+    const container = document.getElementById('search-results-container');
+    const message = document.createElement('p');
+    message.textContent = err.message;
+    const retry = document.createElement('button');
+    retry.id = 'retry-search-btn';
+    retry.className = 'btn btn-outline';
+    retry.textContent = 'Retry loading listings';
+    retry.addEventListener('click', async () => {
+      retry.disabled = true;
+      await fetchAllJobs();
     });
-
-    // 1. RequiredSkillCoverage: (matched required) / (total required)
-    const s_req = reqSkills.length === 0
-      ? 1.0
-      : reqSkills.filter(id => userSkillIds.includes(id)).length / reqSkills.length;
-
-    // 2. PreferredSkillCoverage: (matched preferred) / (total preferred), 0 if none
-    const s_pref = prefSkills.length === 0
-      ? 0.0
-      : prefSkills.filter(id => userSkillIds.includes(id)).length / prefSkills.length;
-
-    // 3. FieldOfStudyAlignment: 1 if match, else 0
-    let s_field = 0.0;
-    const ind = (job.industry || '').toLowerCase().trim();
-    const uf = (currentProfile?.field_of_study || '').toLowerCase().trim();
-    if (uf && (ind.includes(uf) || uf.includes(ind) ||
-        (['computer science', 'software engineering', 'information technology'].includes(uf) && ['information technology', 'software', 'telecommunications', 'e-commerce & tech'].includes(ind)) ||
-        (['electrical engineering', 'electrical power engineering'].includes(uf) && ['engineering & energy', 'telecommunications'].includes(ind)))) {
-      s_field = 1.0;
-    }
-
-    // 4. CareerInterestAlignment: 1 if match, else 0
-    const userInterests = (currentProfile?.career_interests || '').toLowerCase().trim();
-    let s_interest = 0.0;
-    if (userInterests && (job.title.toLowerCase().includes(userInterests) || (job.description && job.description.toLowerCase().includes(userInterests)))) {
-      s_interest = 1.0;
-    }
-
-    const matchScore = Math.round(
-      ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_field) + (0.15 * s_interest)) * 100
-    );
-
-    return {
-      ...job,
-      match_score: matchScore,
-      skills_list: allSkillsList,
-      skill_ids: allSkillsList.map(s => s.skill_id)
-    };
-  });
-
-  applyFiltersAndRender();
+    container.replaceChildren(message, retry);
+    document.getElementById('available-count-badge').textContent = 'Unavailable';
+    showToast(err.message,'error');
+  }
 }
 
 // ----------------------------------------------------------------------------
 // 4. Multi-Filter & Search Algorithm
 // ----------------------------------------------------------------------------
 function applyFiltersAndRender() {
+  // Filter changes must not turn a failed request into an apparently valid empty/stale feed.
+  if (!jobsLoaded) return;
   const searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
   const selectedIndustry = document.getElementById('industry-filter').value;
   const selectedLocation = document.getElementById('location-filter').value;
@@ -267,7 +213,7 @@ function renderJobResults(jobs) {
     card.innerHTML = `
       <div style="display: flex; gap: 16px; align-items: flex-start;">
         <div style="width: 44px; height: 44px; border-radius: 8px; background: #212d3d; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: #38bdf8; flex-shrink: 0;">
-          ${monogram}
+          ${escapeHtml(monogram)}
         </div>
 
         <div style="flex: 1;">
@@ -321,7 +267,7 @@ function resetFilters() {
   document.getElementById('location-filter').value = '';
 
   document.querySelectorAll('input[name="jobType"]').forEach(cb => {
-    cb.checked = cb.value === 'Internship';
+    cb.checked = false;
   });
 
   document.querySelectorAll('input[name="skillFilter"]').forEach(cb => {
@@ -340,5 +286,5 @@ function showToast(msg, type = 'info') {
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

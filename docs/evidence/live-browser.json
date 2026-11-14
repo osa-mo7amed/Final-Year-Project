@@ -1,0 +1,48 @@
+{
+  "testedAt": "2026-11-13T08:29:00.422Z",
+  "environment": "Headless Edge, real Supabase Auth/REST, dedicated synthetic accounts and posting",
+  "checks": [
+    "Admin password login and role redirect",
+    "Admin creates job with required skill atomically",
+    "Admin edits job and preserves skills",
+    "Student password login and role redirect",
+    "Profile and technical skills persist after reload, CGPA zero accepted",
+    "Application submission and duplicate rejection",
+    "Dashboard/search/analysis compatibility score parity",
+    "Logout and protected-page redirect",
+    "Admin archives synthetic posting"
+  ],
+  "errors": [],
+  "score": "80.00% match",
+  "profileSaveMs": 297.85549999999967,
+  "recommendationPageMs": {
+    "description": "Navigation start to synthetic recommendation card visible; same browser context, includes route guard, profile fetch, RPC and rendering; 20 sequential runs, no concurrent load",
+    "runs": [
+      1534.4917000000005,
+      891.2518999999993,
+      974.0396999999975,
+      1429.9275000000016,
+      1436.7131999999983,
+      1450.268500000002,
+      1436.6013999999996,
+      931.1002000000008,
+      915.8852000000006,
+      1414.8106000000007,
+      913.1239000000023,
+      1389.764299999999,
+      1458.857100000001,
+      1417.6854999999996,
+      1420.7623999999996,
+      943.9159,
+      1438.005799999999,
+      1422.6468000000023,
+      942.2714999999953,
+      914.3974999999991
+    ],
+    "mean": 1233.8260299999997,
+    "median": 1416.2480500000001,
+    "p95": 1458.857100000001,
+    "max": 1534.4917000000005,
+    "within3s": 20
+  }
+}

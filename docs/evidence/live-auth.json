@@ -1,0 +1,51 @@
+{
+  "testedAt": "2026-11-13T08:17:37.503Z",
+  "environment": "Live Supabase Auth password login and REST; dedicated synthetic accounts provisioned by SQL, not email signup",
+  "checks": [
+    {
+      "test": "student password login",
+      "status": 200
+    },
+    {
+      "test": "admin password login",
+      "status": 200
+    },
+    {
+      "test": "student profile isolation",
+      "status": 200
+    },
+    {
+      "test": "direct role escalation denied",
+      "status": 403
+    },
+    {
+      "test": "metadata escalation denied",
+      "status": 200
+    },
+    {
+      "test": "cross-user recommendation denied",
+      "status": 403
+    },
+    {
+      "test": "atomic profile save HTTP",
+      "status": 200
+    },
+    {
+      "test": "own recommendations HTTP",
+      "status": 200,
+      "count": 0
+    },
+    {
+      "test": "admin authorization HTTP",
+      "status": 200
+    },
+    {
+      "test": "existing JWT denied after deactivation",
+      "status": 403
+    },
+    {
+      "test": "logout invalidates protected operations with old JWT",
+      "status": 403
+    }
+  ]
+}

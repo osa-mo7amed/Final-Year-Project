@@ -1,0 +1,65 @@
+{
+  "observedAt": "2026-11-14T10:19:13.727Z",
+  "checkpoint": "2.1",
+  "kind": "Environment and retained-evidence inventory, not application test rerun",
+  "nodeVersion": "v24.22.1",
+  "pgliteResolved": "C:\\Users\\osaal\\Desktop\\programming languages\\VS Codes\\Codes\\FYP2\\internmatch-project\\internmatch\\node_modules\\.pnpm\\@electric-sql+pglite@0.3.14\\node_modules\\@electric-sql\\pglite\\dist\\index.cjs",
+  "playwrightModule": "C:/Users/osaal/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
+  "browsers": [
+    {
+      "channel": "msedge",
+      "headlessLaunch": "failed",
+      "error": "browserType.launch: Target page, context or browser has been closed"
+    },
+    {
+      "channel": "chrome",
+      "version": "157.0.8103.51",
+      "headlessLaunch": "passed",
+      "scope": "Launch only; no application or network navigation"
+    }
+  ],
+  "bundledBrowserCandidates": [
+    {
+      "name": "firefox",
+      "executable": "C:\\Users\\osaal\\AppData\\Local\\Packages\\openai.codex_2p2nqsd0c76g0\\AC\\#!sandbox.{d32b6bbb-31a3-4363-bbbb-b34f1fe0c60b}\\ms-playwright\\firefox-1538\\firefox\\firefox.exe",
+      "exists": false,
+      "launched": false
+    },
+    {
+      "name": "webkit",
+      "executable": "C:\\Users\\osaal\\AppData\\Local\\Packages\\openai.codex_2p2nqsd0c76g0\\AC\\#!sandbox.{d32b6bbb-31a3-4363-bbbb-b34f1fe0c60b}\\ms-playwright\\webkit-2336\\Playwright.exe",
+      "exists": false,
+      "launched": false
+    }
+  ],
+  "changedFromStage1Manifest": [],
+  "recommendationFunctionParity": [
+    {
+      "name": "score_compatibility",
+      "localBodyMd5": "2ae1260187bd5b87db6926ccbabb2aa6",
+      "hostedBodyMd5": "2ae1260187bd5b87db6926ccbabb2aa6",
+      "match": true
+    },
+    {
+      "name": "calculate_recommendations_for_user",
+      "localBodyMd5": "c60d8f0635bef189fad3f7e62cc7de75",
+      "hostedBodyMd5": "c60d8f0635bef189fad3f7e62cc7de75",
+      "match": true
+    },
+    {
+      "name": "get_skill_analysis_for_job",
+      "localBodyMd5": "82508baac48f1d5b09c531c2bc4e77d6",
+      "hostedBodyMd5": "82508baac48f1d5b09c531c2bc4e77d6",
+      "match": true
+    }
+  ],
+  "postgresTools": "pg_dump, pg_restore, psql not found on PATH; standard Program Files/PostgreSQL directory not found",
+  "docker": "not found on PATH",
+  "testCredentialEnvironmentNames": [],
+  "limits": [
+    "Browser launch does not establish application compatibility.",
+    "No email was requested/sent and no real mailbox was used.",
+    "No backup or restore executed.",
+    "No load/performance/functional test suite rerun."
+  ]
+}

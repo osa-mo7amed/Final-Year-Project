@@ -1,0 +1,22 @@
+✔ signup cannot grant Admin; metadata cannot authorize Admin (1859.8287ms)
+✔ anonymous reads, writes and RPCs denied (7.9584ms)
+✔ own profile only; direct escalation and cross-user RPC denied (14.1054ms)
+✔ profile saves atomically and server computes strength including CGPA zero (23.5957ms)
+✔ admin job save is atomic; deterministic ranking; expired/closed excluded (88.1439ms)
+✔ applications enforce ownership, deadline and uniqueness; archive preserves history (21.2108ms)
+✔ admin manages users; self lockout denied; inactive and revoked sessions blocked (16.4633ms)
+✔ scoring: weights, rounding, empty lists, literal interests, normalized field (6.8865ms)
+✔ profile completeness UI and database agree across skill thresholds (74.2005ms)
+✔ frontend role cannot be elevated through metadata (5.8107ms)
+✔ frontend protected route fails closed for absent/inactive account and no session (6.4477ms)
+✔ frontend uses one recommendation endpoint and exposes backend errors (2.7324ms)
+✔ ranking metrics use full relevant corpus and macro F1 (4.2975ms)
+✔ SUS alternates contributions, validates missing and invalid answers (1.8783ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2392.011

@@ -28,6 +28,7 @@ async function handleRegister(event) {
   const form = event.target;
   const alertBox = document.getElementById('form-alert');
   const submitBtn = document.getElementById('submit-btn');
+  if (submitBtn.disabled) return;
   hideAlert(alertBox);
 
   const fullName = form.fullName.value.trim();
@@ -41,10 +42,10 @@ async function handleRegister(event) {
   if (!fullName || fullName.length < 2) {
     return showAlert(alertBox, 'Please enter your full name.', 'error');
   }
-  if (/[<>]|script/i.test(fullName)) {
+  if (/[<>]/.test(fullName)) {
     return showAlert(alertBox, 'Full name cannot contain HTML or script characters (<, >).', 'error');
   }
-  if (fieldOfStudy && /[<>]|script/i.test(fieldOfStudy)) {
+  if (!fieldOfStudy || /[<>]/.test(fieldOfStudy)) {
     return showAlert(alertBox, 'Field of study cannot contain HTML or script characters.', 'error');
   }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -56,16 +57,18 @@ async function handleRegister(event) {
   if (password !== confirmPassword) {
     return showAlert(alertBox, 'Passwords do not match.', 'error');
   }
-  if (!role) {
+  if (!['Student','Graduate'].includes(role)) {
     return showAlert(alertBox, 'Please select your current academic status.', 'error');
   }
 
   setLoading(submitBtn, true, 'Create account');
 
+  try {
   const { data, error } = await supabaseClient.auth.signUp({
     email,
     password,
     options: {
+      emailRedirectTo: new URL('profile.html', location.href).href,
       data: {
         full_name: fullName,
         role: role,
@@ -94,6 +97,10 @@ async function handleRegister(event) {
   setTimeout(() => {
     window.location.href = 'login.html';
   }, 2500);
+  } catch (err) {
+    showAlert(alertBox, 'The service could not be reached. Please retry.');
+  } finally { setLoading(submitBtn, false, 'Create Account'); }
+
 }
 
 // ----------------------------------------------------------------------------
@@ -105,6 +112,7 @@ async function handleLogin(event) {
   const form = event.target;
   const alertBox = document.getElementById('form-alert');
   const submitBtn = document.getElementById('submit-btn');
+  if (submitBtn.disabled) return;
   hideAlert(alertBox);
 
   const email = form.email.value.trim().toLowerCase();
@@ -116,6 +124,7 @@ async function handleLogin(event) {
 
   setLoading(submitBtn, true, 'Signing in…');
 
+  try {
   const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
   if (error) {
@@ -130,104 +139,67 @@ async function handleLogin(event) {
     .eq('id', data.user.id)
     .maybeSingle();
 
-  if (userError) {
-    console.error('Error fetching user row from public.users:', userError);
+  if (userError || !userRow) {
+    await supabaseClient.auth.signOut({scope:'local'});
+    setLoading(submitBtn, false, 'Sign In');
+    return showAlert(alertBox, 'Account details could not be loaded. Please retry or contact the administrator.');
   }
 
   setLoading(submitBtn, false, 'Sign In →');
 
-  if (userRow && userRow.account_status === 'Inactive') {
+  if (userRow.account_status !== 'Active' || !resolveEffectiveRole(userRow)) {
     await supabaseClient.auth.signOut();
     return showAlert(alertBox, 'This account has been deactivated. Please contact the system administrator.', 'error');
   }
 
-  // Helper to resolve effective user role across public.users, user_metadata, and app_metadata
+  // Helper to resolve effective user role from public.users
   const effectiveRole = resolveEffectiveRole(userRow, data.user);
-
-  console.log('[Auth] Login successful. Role resolution:', {
-    effectiveRole,
-    dbRole: userRow?.role,
-    metaRole: data.user.user_metadata?.role,
-    userRow,
-    userError
-  });
 
   // Role-based routing: Admin -> admin-dashboard.html (Figure 4.3 / TC-2.2), Student -> dashboard.html
   window.location.href = effectiveRole === 'Admin' ? 'admin-dashboard.html' : 'dashboard.html';
+  } catch (err) {
+    showAlert(alertBox, 'The service could not be reached. Please retry.');
+  } finally { setLoading(submitBtn, false, 'Sign In'); }
+
 }
 
 // ----------------------------------------------------------------------------
-// Helper: Resolve effective user role across DB and metadata sources
+// Helper: Resolve effective user role from the database role only
 // ----------------------------------------------------------------------------
-function resolveEffectiveRole(userRow, authUser) {
-  const dbRole = userRow?.role ? String(userRow.role).trim() : null;
-  const metaRole = authUser?.user_metadata?.role ? String(authUser.user_metadata.role).trim() : null;
-  const appRole = authUser?.app_metadata?.role ? String(authUser.app_metadata.role).trim() : null;
-
-  // Case-insensitive check: if ANY source designates Admin, authorize as Admin
-  if ([dbRole, metaRole, appRole].some(r => r && r.toLowerCase() === 'admin')) {
-    return 'Admin';
-  }
-  // Check if any source designates Graduate
-  if ([dbRole, metaRole, appRole].some(r => r && (r.toLowerCase() === 'graduate' || r.toLowerCase() === 'fresh graduate'))) {
-    return 'Graduate';
-  }
-  return dbRole || metaRole || appRole || 'Student';
+function resolveEffectiveRole(userRow) {
+  return ['Student','Graduate','Admin'].includes(userRow?.role) ? userRow.role : null;
 }
 
 // ----------------------------------------------------------------------------
 // FR-9: Log Out
 // ----------------------------------------------------------------------------
 async function handleLogout() {
-  await supabaseClient.auth.signOut();
-  window.location.href = 'login.html';
+  try {
+    const {error} = await supabaseClient.auth.signOut();
+    if (error) throw error;
+    window.location.replace('login.html');
+  } catch { alert('Sign out failed. Please retry.'); }
 }
 
 // ----------------------------------------------------------------------------
 // Route Guard for Protected Pages
 // ----------------------------------------------------------------------------
 async function requireAuth(requiredRole = null) {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (!session) {
-    window.location.href = 'login.html';
+  try {
+  const {data:{session},error} = await supabaseClient.auth.getSession();
+  if (error || !session) { window.location.replace('login.html'); return null; }
+  const {data:userRow,error:userError} = await supabaseClient.from('users')
+    .select('role,full_name,account_status').eq('id',session.user.id).maybeSingle();
+  if (userError || !userRow || userRow.account_status !== 'Active' || !resolveEffectiveRole(userRow)) {
+    await supabaseClient.auth.signOut({scope:'local'});
+    window.location.replace('login.html?reason=account'); return null;
+  }
+  if (requiredRole && userRow.role !== requiredRole) {window.location.replace('dashboard.html');return null;}
+  return {session,profile:userRow};
+  } catch {
+    window.location.replace('login.html?reason=service');
     return null;
   }
-
-  if (requiredRole) {
-    const { data: userRow, error: userError } = await supabaseClient
-      .from('users')
-      .select('role, full_name')
-      .eq('id', session.user.id)
-      .maybeSingle();
-
-    if (userError) {
-      console.error('[requireAuth] Error querying public.users:', userError);
-    }
-
-    const effectiveRole = resolveEffectiveRole(userRow, session.user);
-
-    console.log('[requireAuth] Check:', {
-      requiredRole,
-      effectiveRole,
-      dbRole: userRow?.role,
-      metaRole: session.user.user_metadata?.role,
-      userRow,
-      userError
-    });
-
-    if (effectiveRole.toLowerCase() !== requiredRole.toLowerCase()) {
-      console.warn(`Access denied to ${requiredRole} route. User has role ${effectiveRole}. Redirecting to student dashboard.`);
-      window.location.href = 'dashboard.html';
-      return null;
-    }
-    return {
-      session,
-      profile: userRow || {
-        role: effectiveRole,
-        full_name: session.user.user_metadata?.full_name || 'Administrator'
-      }
-    };
-  }
-
-  return { session };
 }
+
+window.addEventListener('pageshow', e => { if (e.persisted && !/login|register/.test(location.pathname)) location.reload(); });

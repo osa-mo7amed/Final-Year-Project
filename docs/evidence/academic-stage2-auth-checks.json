@@ -1,0 +1,28 @@
+{
+  "recordedAt": "2026-11-14T10:25:38.435Z",
+  "checkpoint": "2.2",
+  "command": "node --test tests/auth-flows.test.cjs tests/frontend.test.cjs",
+  "environment": "Node v24.22.1; node:vm with mocked SDK/DOM; no network",
+  "result": {
+    "tests": 14,
+    "pass": 14,
+    "fail": 0,
+    "newAuthControllerTests": 11,
+    "existingFrontendTests": 3,
+    "durationMs": 203.7582
+  },
+  "initialAttempt": "New test file had a syntax error; corrected before successful run.",
+  "limitations": [
+    "Not real email delivery or link verification",
+    "Not browser integration or a live backend run",
+    "Historical live evidence predates the changed controllers",
+    "Real acceptance E01-E08 remains NOT RUN"
+  ],
+  "sha256": {
+    "frontend/js/auth.js": "49b138ce148e3ebe5d9f41f92ceebf6129de85a10988ab389da55b85eefe0660",
+    "frontend/js/recovery.js": "32d1b5ab7d1ae967ceac74990705c1cccf9ae1fe67110c9942bb500225642322",
+    "frontend/js/admin-create-user.js": "e983a94b033fa4c19c8459cd8875a96afaaa4ba0d26537082da74b0b83bc0611",
+    "tests/auth-flows.test.cjs": "1c2de55833fb59246b5fcbec4d7e7a08e4610ce0662ddb1506011bfa59bfd2b8",
+    "tests/frontend.test.cjs": "c33f06d299ecdaa3a760e9d6187942cf1370ccacb11a277b123e1b114830c64f"
+  }
+}

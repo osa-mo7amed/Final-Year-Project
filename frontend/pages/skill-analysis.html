@@ -5,14 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Skill Alignment Analysis — InternMatch</title>
   <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/experience.css" />
+  <script src="../js/experience.js" defer></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 
 <div class="app-container">
   <!-- Sidebar Navigation -->
   <aside class="app-sidebar">
     <div class="brand-logo">
-      <span class="badge-logo">IM</span>
+      <span class="badge-logo">im↗</span>
       <span>InternMatch</span>
     </div>
     <ul class="nav-menu">
@@ -21,6 +24,7 @@
       <li><a href="skill-analysis.html" class="nav-link active"><span>📈</span> Skill Analysis</a></li>
       <li><a href="search.html" class="nav-link"><span>🔍</span> Search Jobs</a></li>
     </ul>
+    <div class="sidebar-tip"><strong>A little progress, every day.</strong>Keep your skills up to date. Your next opportunity starts with you.</div>
     <div class="sidebar-user">
       <div class="user-name" id="sidebar-user-name">Loading...</div>
       <div class="user-id" id="sidebar-user-role">Student</div>
@@ -29,7 +33,7 @@
   </aside>
 
   <!-- Main Content -->
-  <main class="app-main">
+  <main class="app-main" id="main-content">
     <header class="main-header">
       <div>
         <h2>Skill Alignment & Gap Analysis</h2>
@@ -39,6 +43,8 @@
     </header>
 
     <div class="main-content">
+<p class="data-notice" role="note">Educational prototype: sample postings are not verified current vacancies. Scores indicate profile compatibility, not hiring probability.</p>
+<section class="workspace-hero" aria-label="Page introduction"><div class="workspace-hero-copy"><span class="eyebrow">TURN INSIGHT INTO PROGRESS</span><h1>Know your strengths. Grow your potential.</h1><p>Understand how you fit, identify your next learning goals, and move forward with a clear plan.</p></div><img src="../assets/career-3-640.jpg" width="640" height="360" alt="" /></section>
       <div id="analysis-alert" class="alert-toast"></div>
 
       <!-- Job Selector if opened directly without query param -->
@@ -72,16 +78,16 @@
 
       <!-- Split Comparison Board: What You Have vs. What You're Missing -->
       <div class="alignment-grid">
-        <!-- Left: Matched Skills (Verified Strengths) -->
+        <!-- Left: Matched Skills (Matched Skills) -->
         <div class="card alignment-column-card alignment-column-card--matched">
           <div class="column-banner">
             <div>
               <h3 style="color: var(--im-match-text); display: flex; align-items: center; gap: 8px; font-size: 1.18rem;">
-                <span>✓</span> Verified Strengths <span id="matched-count-badge" style="font-family: var(--font-mono); font-size: 0.95rem; color: #a7f3d0;">(0)</span>
+                <span>✓</span> Matched Skills <span id="matched-count-badge" style="font-family: var(--font-mono); font-size: 0.95rem; color: #a7f3d0;">(0)</span>
               </h3>
               <p style="font-size: 0.8rem; color: var(--im-text-dim); margin-top: 2px;">Competencies already present in your student profile</p>
             </div>
-            <span class="column-legend-pill legend-matched">You Possess</span>
+            <span class="column-legend-pill legend-matched">In Your Profile</span>
           </div>
 
           <div class="tag-container" id="matched-skills-list" style="flex-direction: column; gap: 10px; flex: 1;">
@@ -112,7 +118,7 @@
         <div class="card-header">
           <div>
             <h3 style="font-size: 1.25rem;">Actionable Learning Roadmaps</h3>
-            <p style="font-size: 0.85rem; color: var(--im-text-muted); margin-top: 4px;">Structured learning pathways, recommended practice projects, and realistic durations to bridge identified gaps.</p>
+            <p style="font-size: 0.85rem; color: var(--im-text-muted); margin-top: 4px;">Structured learning pathways, recommended practice projects, and suggested practice durations to bridge identified gaps.</p>
           </div>
           <span style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--im-gap-text); background: rgba(245, 158, 11, 0.1); border: 1px solid var(--im-gap-line); padding: 4px 10px; border-radius: var(--radius-full);">
             Step-by-Step Guidance
@@ -137,9 +143,10 @@
 </div>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4"></script>
 <script src="../js/supabase-config.js"></script>
 <script src="../js/auth.js"></script>
+<script src="../js/recommendations.js"></script>
 <script src="../js/skill-analysis.js"></script>
 </body>
 </html>

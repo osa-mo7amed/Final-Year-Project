@@ -1,0 +1,18 @@
+{
+  "measuredAt": "2026-11-13T08:08:38.269Z",
+  "project": "uszwimitxmzqwtqlugxx",
+  "checks": [
+    {
+      "path": "users?select=id",
+      "status": 401
+    },
+    {
+      "path": "job_postings?select=job_posting_id",
+      "status": 401
+    },
+    {
+      "path": "rpc/calculate_recommendations_for_user",
+      "status": 401
+    }
+  ]
+}

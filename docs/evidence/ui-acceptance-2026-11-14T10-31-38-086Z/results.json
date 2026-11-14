@@ -1,0 +1,161 @@
+{
+  "runAt": "2026-11-14T10:31:38.088Z",
+  "scope": "Stage 2.3.1; repository files fulfilled by Playwright routing and synthetic mocked SDK; not HTTP server/live backend/UAT/performance",
+  "jobs": 4,
+  "checks": [
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "combined filters and required-skill AND exclude preferred-only match",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "reset restores complete corpus and preserves equal-score input order",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "company and placement/location filters",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "no-results reset and keyboard Enter search",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "filter selects have accessible labels",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "search has no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "outage remains unavailable after Reset, not empty successful results",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '4 listings available'\n- 'Unavailable'\n"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "keyboard dialog focus trap, Escape and focus return",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "page alerts provide polite live regions",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 1440,
+      "name": "no uncaught page errors",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "combined filters and required-skill AND exclude preferred-only match",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "reset restores complete corpus and preserves equal-score input order",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "company and placement/location filters",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "no-results reset and keyboard Enter search",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "filter selects have accessible labels",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "search has no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "outage remains unavailable after Reset, not empty successful results",
+      "status": "FAIL",
+      "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '4 listings available'\n- 'Unavailable'\n"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "keyboard dialog focus trap, Escape and focus return",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "page alerts provide polite live regions",
+      "status": "PASS"
+    },
+    {
+      "channel": "chrome",
+      "width": 390,
+      "name": "no uncaught page errors",
+      "status": "PASS"
+    }
+  ],
+  "launches": [
+    {
+      "channel": "chrome",
+      "status": "PASS",
+      "version": "157.0.8103.51"
+    },
+    {
+      "channel": "msedge",
+      "status": "BLOCKED",
+      "error": "browserType.launch: Target page, context or browser has been closed"
+    }
+  ],
+  "externalRequestsBlocked": [
+    "https://fonts.googleapis.com"
+  ],
+  "screenshots": [
+    "chrome-dashboard-1440.png",
+    "chrome-dashboard-390.png"
+  ],
+  "sourceSha256": {
+    "tests/ui-acceptance.cjs": "f3622e9144cb58cebeaefdf25c027d115f6fe06d17d23001707c9d8a75cb9620",
+    "tests/browser-fixtures.cjs": "860f2756c2b63bebc2b30b01eba696f06c03b6fbadf4c37246991283142d0502",
+    "frontend/js/search.js": "7835933752fe1c890d457ac82cd03e37e575fa899612b74c5a31f38e0bb8e53a",
+    "frontend/js/experience.js": "4d389bb79abf6160cfb49d1e1da736e59e1d41b68d091e4737cdcd406100b21f",
+    "frontend/pages/search.html": "8f3c29842c36f142538a7edd63b3ddcc71e39b0824dbd9d0856668af34114486"
+  },
+  "summary": {
+    "passed": 16,
+    "failed": 4
+  }
+}

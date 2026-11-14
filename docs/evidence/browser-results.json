@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-13T08:35:19.869Z",
+  "environment": "Headless Microsoft Edge; mocked Supabase responses",
+  "checks": [
+    {
+      "page": "index",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "login",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "register",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "reset-password",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "profile",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "dashboard",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "search",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "skill-analysis",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "admin-dashboard",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "admin-jobs",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "admin-users",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "evaluation-runner",
+      "width": 1440,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "index",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "login",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "register",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "reset-password",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "profile",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "dashboard",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "search",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "skill-analysis",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "admin-dashboard",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "admin-jobs",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "admin-users",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    },
+    {
+      "page": "evaluation-runner",
+      "width": 390,
+      "errors": [],
+      "overflow": false
+    }
+  ],
+  "outageState": "PASS"
+}

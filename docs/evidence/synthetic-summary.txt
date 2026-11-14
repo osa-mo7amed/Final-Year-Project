@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-11-13T08:31:18.389Z",
+  "environment": "Local PGlite PostgreSQL; no network or browser rendering",
+  "dataset": "synthetic-v1",
+  "label": "Developer-authored synthetic fixtures; relevance labels are not independent judgments",
+  "profiles": 10,
+  "jobs": 12,
+  "engineSha256": "2681ce059d74f3cbc342e7189cd87097220e6686f319a11cca5e299e7e5cad0d",
+  "datasetSha256": "cde8e690d284d755e7208cb2f76fe9a5edb9052c6c5e3eca59355c83d03c7f1a",
+  "summary": {
+    "precision": 0.5799999999999998,
+    "recall": 0.9349999999999999,
+    "f1": 0.6949206349206349,
+    "ap": 0.8967857142857143
+  },
+  "meanP3": 0.7333333333333334,
+  "meanP10": 0.31999999999999995
+}

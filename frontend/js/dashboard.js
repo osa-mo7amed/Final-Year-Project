@@ -54,11 +54,14 @@ async function loadProfileAndSkills() {
     // Fetch skills
     const { data: pSkills } = await supabaseClient
       .from('profile_skills')
-      .select('skill_id')
+      .select('skill_id, skills(skill_id, category)')
       .eq('profile_id', profile.profile_id);
 
     if (pSkills) {
       userSkillIds = pSkills.map(ps => ps.skill_id);
+      const completeness = profileStrength(profile,pSkills.map(ps=>ps.skills).filter(Boolean));
+      document.getElementById('strength-val').textContent = `${completeness}%`;
+      document.getElementById('strength-bar').style.width = `${completeness}%`;
     }
   } else {
     document.getElementById('strength-val').textContent = '15%';
@@ -80,21 +83,9 @@ async function generateAndRenderRecommendations() {
     incompleteBox.style.display = 'none';
   }
 
-  // Attempt RPC first, fallback to client-side math
-  let recommendations = [];
-  try {
-    const { data: rpcData, error: rpcErr } = await supabaseClient
-      .rpc('calculate_recommendations_for_user', { p_user_id: currentUserId });
-
-    if (!rpcErr && rpcData && rpcData.length > 0) {
-      recommendations = rpcData;
-    } else {
-      recommendations = await computeRecommendationsClientSide();
-    }
-  } catch (err) {
-    console.warn('RPC unavailable, executing client computation:', err);
-    recommendations = await computeRecommendationsClientSide();
-  }
+  let recommendations;
+  try { recommendations = await fetchRecommendations(currentUserId); }
+  catch (err) { container.textContent = err.message; return; }
 
   rankedJobs = recommendations;
 
@@ -128,7 +119,7 @@ async function generateAndRenderRecommendations() {
       skillTagsHtml += `<span class="tag-chip">${escapeHtml(s.skill_name || s)}</span>`;
     });
 
-    const matchScore = parseFloat(job.match_score || 0).toFixed(0);
+    const matchScore = Number(job.match_score).toFixed(2);
 
     card.innerHTML = `
       <div class="job-card-header">
@@ -141,6 +132,7 @@ async function generateAndRenderRecommendations() {
         </div>
       </div>
 
+      <p>${escapeHtml(job.explanation)}</p>
       <div class="tag-container">
         ${skillTagsHtml}
       </div>
@@ -159,96 +151,8 @@ async function generateAndRenderRecommendations() {
 }
 
 // ----------------------------------------------------------------------------
-// 4. Client-Side Mathematical Recommendation Engine (Fallback / Standalone)
+// Scoring is authoritative in PostgreSQL; no client fallback.
 // ----------------------------------------------------------------------------
-async function computeRecommendationsClientSide() {
-  // Fetch active postings + joined skills
-  const { data: jobs, error } = await supabaseClient
-    .from('job_postings')
-    .select(`
-      job_posting_id,
-      title,
-      company,
-      description,
-      job_type,
-      location,
-      industry,
-      deadline,
-      job_skills (
-        is_required,
-        skills (skill_id, skill_name, category)
-      )
-    `)
-    .eq('status', 'Active');
-
-  if (error || !jobs) return [];
-
-  const userField = currentProfile?.field_of_study || '';
-  const userInterests = (currentProfile?.career_interests || '').toLowerCase();
-
-  return jobs.map(job => {
-    const jobSkills = job.job_skills || [];
-    const reqSkills = [];
-    const prefSkills = [];
-    const allSkills = [];
-
-    jobSkills.forEach(js => {
-      if (js.skills) {
-        allSkills.push(js.skills);
-        if (js.is_required) {
-          reqSkills.push(js.skills.skill_id);
-        } else {
-          prefSkills.push(js.skills.skill_id);
-        }
-      }
-    });
-
-    // 1. RequiredSkillCoverage: (matched required) / (total required)
-    const s_req = reqSkills.length === 0
-      ? 1.0
-      : reqSkills.filter(id => userSkillIds.includes(id)).length / reqSkills.length;
-
-    // 2. PreferredSkillCoverage: (matched preferred) / (total preferred), 0 if none
-    const s_pref = prefSkills.length === 0
-      ? 0.0
-      : prefSkills.filter(id => userSkillIds.includes(id)).length / prefSkills.length;
-
-    // 3. FieldOfStudyAlignment: 1 if match, else 0
-    let s_field = 0.0;
-    const ind = (job.industry || '').toLowerCase().trim();
-    const uf = userField.toLowerCase().trim();
-    if (uf && (ind.includes(uf) || uf.includes(ind) ||
-        (['computer science', 'software engineering', 'information technology'].includes(uf) && ['information technology', 'software', 'telecommunications', 'e-commerce & tech'].includes(ind)) ||
-        (['electrical engineering', 'electrical power engineering'].includes(uf) && ['engineering & energy', 'telecommunications'].includes(ind)))) {
-      s_field = 1.0;
-    }
-
-    // 4. CareerInterestAlignment: 1 if match, else 0
-    let s_interest = 0.0;
-    const ui = userInterests.toLowerCase().trim();
-    if (ui && (job.title.toLowerCase().includes(ui) || (job.description && job.description.toLowerCase().includes(ui)))) {
-      s_interest = 1.0;
-    }
-
-    const totalScore = Math.round(
-      ((0.50 * s_req) + (0.20 * s_pref) + (0.15 * s_field) + (0.15 * s_interest)) * 100
-    );
-
-    return {
-      job_posting_id: job.job_posting_id,
-      title: job.title,
-      company: job.company,
-      description: job.description,
-      job_type: job.job_type,
-      location: job.location,
-      industry: job.industry,
-      deadline: job.deadline,
-      match_score: totalScore,
-      skills: allSkills
-    };
-  }).sort((a, b) => b.match_score - a.match_score);
-}
-
 // ----------------------------------------------------------------------------
 // 5. Job Details Modal & Apply Action
 // ----------------------------------------------------------------------------
@@ -316,12 +220,12 @@ function openJobModal(job) {
     <span><strong>Type:</strong> ${escapeHtml(job.job_type)}</span>
     <span><strong>Industry:</strong> ${escapeHtml(job.industry || 'General')}</span>
     <span><strong>Closing Date:</strong> ${deadlineText}</span>
-    <span class="score-badge">${parseFloat(job.match_score || 0).toFixed(0)}% Match</span>
+    <span class="score-badge">${Number(job.match_score).toFixed(2)}% Match</span>
   `;
 
   const skillsContainer = document.getElementById('modal-skills');
   skillsContainer.innerHTML = '';
-  const skillsList = job.skills || [];
+  const skillsList = job.skills || [...(job.matched_skills || []), ...(job.missing_skills || [])];
   skillsList.forEach(s => {
     const chip = document.createElement('span');
     chip.className = 'tag-chip';
@@ -347,5 +251,5 @@ function showDashboardToast(msg, type = 'info') {
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

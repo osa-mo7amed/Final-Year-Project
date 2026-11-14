@@ -1,0 +1,27 @@
+{
+  "runAt": "2026-11-14T10:31:22.197Z",
+  "scope": "Stage 2.3.1; synthetic mocked browser checks, not live backend/UAT/performance",
+  "jobs": 4,
+  "checks": [],
+  "launches": [
+    {
+      "channel": "chrome",
+      "status": "PASS",
+      "version": "157.0.8103.51"
+    }
+  ],
+  "externalRequestsBlocked": [],
+  "screenshots": [],
+  "fatal": "page.goto: net::ERR_NETWORK_ACCESS_DENIED at http://127.0.0.1:8083/frontend/pages/search.html\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:8083/frontend/pages/search.html\", waiting until \"load\"\u001b[22m\n",
+  "sourceSha256": {
+    "tests/ui-acceptance.cjs": "827030ac83a4a39c40a887eae6fc4b8bf46caa7d53288b2f5c83492352329b56",
+    "tests/browser-fixtures.cjs": "860f2756c2b63bebc2b30b01eba696f06c03b6fbadf4c37246991283142d0502",
+    "frontend/js/search.js": "7835933752fe1c890d457ac82cd03e37e575fa899612b74c5a31f38e0bb8e53a",
+    "frontend/js/experience.js": "4d389bb79abf6160cfb49d1e1da736e59e1d41b68d091e4737cdcd406100b21f",
+    "frontend/pages/search.html": "8f3c29842c36f142538a7edd63b3ddcc71e39b0824dbd9d0856668af34114486"
+  },
+  "summary": {
+    "passed": 0,
+    "failed": 0
+  }
+}
