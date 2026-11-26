@@ -10,4 +10,4 @@ http.createServer((req,res)=>{
   if(!file.startsWith(root+path.sep)) {res.writeHead(403).end();return;}
   fs.readFile(file,(err,data)=>{if(err){res.writeHead(404).end();return;}
     res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(data);});
-}).listen(Number(process.env.PORT || 8080),'127.0.0.1',()=>console.log('InternMatch: http://127.0.0.1:'+(process.env.PORT || 8080)));
+}).listen(Number(process.env.PORT || 8080),'0.0.0.0',()=>console.log('InternMatch: http://0.0.0.0:'+(process.env.PORT || 8080)));
