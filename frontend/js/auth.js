@@ -19,6 +19,13 @@ function setLoading(btn, isLoading, label) {
   btn.textContent = isLoading ? 'Please wait…' : label;
 }
 
+const AUTH_CONNECTION_MESSAGE = 'The account service could not be reached. Check your internet connection and try again. If this continues, contact the administrator.';
+
+function isAuthConnectionError(error) {
+  return error?.name === 'AuthRetryableFetchError' ||
+    /failed to fetch|fetch failed|networkerror|network request failed|load failed/i.test(error?.message || '');
+}
+
 // ----------------------------------------------------------------------------
 // FR-1: Register Account (Figure 4.4)
 // Captures: Full name, email, password, confirm password, field of study, role.
@@ -80,6 +87,9 @@ async function handleRegister(event) {
   setLoading(submitBtn, false, 'Create Account →');
 
   if (error) {
+    if (isAuthConnectionError(error)) {
+      return showAlert(alertBox, AUTH_CONNECTION_MESSAGE, 'error');
+    }
     if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('user already exists')) {
       return showAlert(alertBox, 'This email is already registered. Please sign in instead.', 'error');
     }
@@ -98,7 +108,7 @@ async function handleRegister(event) {
     window.location.href = 'login.html';
   }, 2500);
   } catch (err) {
-    showAlert(alertBox, 'The service could not be reached. Please retry.');
+    showAlert(alertBox, AUTH_CONNECTION_MESSAGE);
   } finally { setLoading(submitBtn, false, 'Create Account'); }
 
 }
@@ -129,6 +139,9 @@ async function handleLogin(event) {
 
   if (error) {
     setLoading(submitBtn, false, 'Sign In →');
+    if (isAuthConnectionError(error)) {
+      return showAlert(alertBox, AUTH_CONNECTION_MESSAGE, 'error');
+    }
     return showAlert(alertBox, 'Incorrect email or password. Please verify your credentials and try again.', 'error');
   }
 
@@ -158,7 +171,7 @@ async function handleLogin(event) {
   // Role-based routing: Admin -> admin-dashboard.html (Figure 4.3 / TC-2.2), Student -> dashboard.html
   window.location.href = effectiveRole === 'Admin' ? 'admin-dashboard.html' : 'dashboard.html';
   } catch (err) {
-    showAlert(alertBox, 'The service could not be reached. Please retry.');
+    showAlert(alertBox, AUTH_CONNECTION_MESSAGE);
   } finally { setLoading(submitBtn, false, 'Sign In'); }
 
 }

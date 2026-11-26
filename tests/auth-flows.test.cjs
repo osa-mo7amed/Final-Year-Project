@@ -27,6 +27,20 @@ test('registration transport failure restores submit control',async()=>{
 test('login rejects invalid credentials and does not reveal which field failed',async()=>{
  const s=setup();s.auth.signInWithPassword=async()=>({error:{message:'user missing'}});await s.ctx.handleLogin(s.event);assert.match(s.el('form-alert').textContent,/Incorrect email or password/);assert.match(s.ctx.location.href,/register/);
 });
+
+test('returned SDK connection errors preserve registration inputs and allow retry',async()=>{
+ for(const error of [{name:'AuthRetryableFetchError',message:'Failed to fetch',status:0},{message:'NetworkError when attempting to fetch resource.'},{message:'Load failed'}]){
+  const s=setup();s.auth.signUp=async()=>({data:null,error});await s.ctx.handleRegister(s.event);
+  assert.match(s.el('form-alert').textContent,/account service could not be reached/);
+  assert.equal(s.el('submit-btn').disabled,false);assert.equal(s.form.wasReset,undefined);assert.equal(s.timers.length,0);
+ }
+});
+
+test('login connection failures are not reported as incorrect credentials',async()=>{
+ const s=setup();s.auth.signInWithPassword=async()=>({error:{name:'AuthRetryableFetchError',message:'Failed to fetch'}});
+ await s.ctx.handleLogin(s.event);assert.match(s.el('form-alert').textContent,/account service could not be reached/);
+ assert.equal(s.el('submit-btn').disabled,false);assert.match(s.ctx.location.href,/register/);
+});
 test('login refuses missing, inactive and invalid-role account rows',async()=>{
  for(const row of [null,{role:'Student',account_status:'Inactive'},{role:'Unexpected',account_status:'Active'}]){
   const s=setup();s.row(row);await s.ctx.handleLogin(s.event);assert.match(s.ctx.location.href,/register/);assert.equal(s.el('submit-btn').disabled,false);
